@@ -1,4 +1,5 @@
 import { ToastHost } from '@geocodio/console-ui';
+import { href, routePath } from './paths';
 import { ButtonRoute } from './routes/ButtonRoute';
 import { ChoiceRoute } from './routes/ChoiceRoute';
 import { ComboboxRoute } from './routes/ComboboxRoute';
@@ -95,7 +96,7 @@ const NAV_LINKS = [
 ] as const;
 
 function Route() {
-    const path = window.location.pathname;
+    const path = routePath();
     if (path === '/button') {
         return <ButtonRoute />;
     }
@@ -141,7 +142,7 @@ function Route() {
 export function App() {
     // The shell is full-window chrome of its own, so it replaces the
     // playground's sidebar rather than nesting inside it.
-    if (window.location.pathname.startsWith('/settings')) {
+    if (routePath().startsWith('/settings')) {
         return <SettingsRoute />;
     }
     return (
@@ -152,7 +153,7 @@ export function App() {
                     {NAV_LINKS.map((link) => (
                         <a
                             key={link.href}
-                            href={link.href}
+                            href={href(link.href)}
                             className="rounded-control px-2 py-1 hover:bg-panel-2"
                         >
                             <span className="block text-[12px] text-body">{link.label}</span>

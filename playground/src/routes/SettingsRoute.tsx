@@ -1,6 +1,7 @@
 import { type SettingsNavSection, SettingsShell, TextInput, Toggle } from '@geocodio/console-ui';
 import type React from 'react';
 import { useState } from 'react';
+import { href, routePath } from '../paths';
 
 function Dot({ tone }: { tone: string }) {
     return <span aria-hidden="true" className={`inline-block h-[15px] w-[15px] shrink-0 rounded-full ${tone}`} />;
@@ -12,7 +13,7 @@ const SECTIONS: SettingsNavSection[] = [
         items: [
             {
                 slug: 'profile',
-                href: '/settings',
+                href: href('/settings'),
                 label: 'Profile',
                 icon: <Dot tone="bg-accent" />,
                 description: 'Your personal signature, appended to everything you send.',
@@ -24,7 +25,7 @@ const SECTIONS: SettingsNavSection[] = [
             },
             {
                 slug: 'notifications',
-                href: '/settings/notifications',
+                href: href('/settings/notifications'),
                 label: 'Notifications',
                 icon: <Dot tone="bg-warn" />,
                 description: 'Choose which events reach you, on which channels.',
@@ -37,7 +38,7 @@ const SECTIONS: SettingsNavSection[] = [
         items: [
             {
                 slug: 'prompts',
-                href: '/settings/prompts',
+                href: href('/settings/prompts'),
                 label: 'Prompts & models',
                 icon: <Dot tone="bg-info" />,
                 description: 'The models and system prompts behind AI suggestions.',
@@ -55,7 +56,7 @@ const SECTIONS: SettingsNavSection[] = [
         items: [
             {
                 slug: 'users',
-                href: '/settings/users',
+                href: href('/settings/users'),
                 label: 'Users & roles',
                 icon: <Dot tone="bg-ok" />,
                 description: 'Who can sign in and what they can do.',
@@ -123,7 +124,7 @@ function PlaceholderPage({ slug }: { slug: string }) {
 
 export function SettingsRoute() {
     const currentPath = window.location.pathname;
-    const slug = SLUG_BY_PATH[currentPath] ?? 'profile';
+    const slug = SLUG_BY_PATH[routePath()] ?? 'profile';
     const params = new URLSearchParams(window.location.search);
 
     return (
@@ -132,7 +133,7 @@ export function SettingsRoute() {
             sections={SECTIONS}
             slug={slug}
             currentPath={currentPath}
-            backHref="/tokens"
+            backHref={href('/tokens')}
             {...(params.has('wide') ? { wide: true } : {})}
             {...(params.has('no-storage') ? { returnToStorageKey: null } : {})}
         >
