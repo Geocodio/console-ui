@@ -1,0 +1,19 @@
+@import 'tailwindcss';
+/* Must precede styles.css: --color-*: initial is a wildcard reset that would
+   wipe this package's own colour tokens if imported after them. */
+@import '@geocodio/console-ui/strict-palette.css';
+@import '@geocodio/console-ui/styles.css';
+
+/* Tailwind skips node_modules during auto-detection, so the package's own
+   class strings must be pointed at explicitly. dist/ is compiled JS -- class
+   strings survive compilation as string literals, so scanning it works. */
+@source '../node_modules/@geocodio/console-ui/dist';
+
+/* The package's half of the stacking-context contract is `body { position:
+   relative }` (styles/base.css). This half -- `isolation: isolate` on the
+   app's own root element -- is the consuming app's job, so the playground
+   sets it here to be a correct reference implementation of its own README
+   instructions rather than working by accident. */
+#root {
+    isolation: isolate;
+}

@@ -1,0 +1,101 @@
+/*
+ * Overlay transitions.
+ *
+ * Base UI keeps a popup mounted while it leaves and marks the phases with
+ * data-starting-style (entering) and data-ending-style (leaving). Transitions
+ * are used rather than animations deliberately: a transition can be cancelled
+ * mid-flight, so closing a dialog before it finished opening reverses smoothly
+ * instead of snapping.
+ *
+ * This is what replaces the bespoke mount-through-exit hook the apps had.
+ */
+.ui-backdrop {
+    transition: opacity var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-backdrop[data-starting-style],
+.ui-backdrop[data-ending-style] {
+    opacity: 0;
+}
+
+.ui-popup {
+    transition:
+        opacity var(--duration-overlay, 200ms) var(--ease-out-quart),
+        transform var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-popup[data-starting-style],
+.ui-popup[data-ending-style] {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + 4px)) scale(0.98);
+}
+
+/* Command palette: anchored near the top rather than centred, so it keeps
+   only the horizontal centring translate and drops in from 4px above. */
+.ui-palette {
+    transition:
+        opacity var(--duration-overlay, 200ms) var(--ease-out-quart),
+        transform var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-palette[data-starting-style],
+.ui-palette[data-ending-style] {
+    opacity: 0;
+    transform: translate(-50%, -4px) scale(0.98);
+}
+
+/* Positioned popups (menus, tooltips) are placed by Base UI's Positioner, so
+   they must not carry the centering translate the dialog popup uses. */
+.ui-floating {
+    transform-origin: var(--transform-origin);
+    transition:
+        opacity var(--duration-quick, 150ms) var(--ease-out-quart),
+        transform var(--duration-quick, 150ms) var(--ease-out-quart);
+}
+.ui-floating[data-starting-style],
+.ui-floating[data-ending-style] {
+    opacity: 0;
+    transform: scale(0.96);
+}
+
+/* Sheet: edge-anchored panel (Drawer). Base UI has no `side` prop -- the
+   popup is placed with plain CSS here, and only the slide axis differs
+   between the two edges. `--drawer-swipe-movement-*` tracks Base UI's
+   in-flight swipe-to-dismiss gesture; it is 0px at rest. */
+.ui-sheet-right {
+    transform: translateX(var(--drawer-swipe-movement-x, 0px));
+    transition: transform var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-sheet-right[data-starting-style],
+.ui-sheet-right[data-ending-style] {
+    transform: translateX(100%);
+}
+
+.ui-sheet-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 12px);
+    transform: translateY(var(--drawer-swipe-movement-y, 0px));
+    transition: transform var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-sheet-bottom[data-starting-style],
+.ui-sheet-bottom[data-ending-style] {
+    transform: translateY(100%);
+}
+
+/* Toast: stacked bottom-right in Toast.Viewport, one .ui-toast per
+   Toast.Root. Slides in/out from the right on the same entry/exit-cancel
+   transition convention as the rest of the overlay family. */
+.ui-toast {
+    transition:
+        opacity var(--duration-overlay, 200ms) var(--ease-out-quart),
+        transform var(--duration-overlay, 200ms) var(--ease-out-quart);
+}
+.ui-toast[data-starting-style],
+.ui-toast[data-ending-style] {
+    opacity: 0;
+    transform: translateX(16px);
+}
+
+/* Base UI only flags a toast beyond `limit` as `data-limited` and `inert` --
+   it otherwise stays in the DOM at full opacity, so without this rule it is
+   merely non-interactive, not hidden. `limit` is meant to cap what the user
+   sees, not just what they can reach. */
+.ui-toast[data-limited] {
+    display: none;
+}

@@ -1,0 +1,12 @@
+/*
+ * The all-in-one import. Order matters: tokens define the properties that
+ * fonts, base and animations consume.
+ *
+ * Deliberately excluded, because it is opt-in:
+ *   @geocodio/console-ui/strict-palette.css  -- deletes Tailwind's palette
+ */
+@import './tokens.css';
+@import './fonts.css';
+@import './base.css';
+@import './animations.css';
+@import './overlays.css';

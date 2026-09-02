@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run lint
+      # Ordering is load-bearing: tsconfig.build.json excludes test files and
+      # vitest does not typecheck, so `npm run typecheck` is the ONLY gate for
+      # type errors in *.test.ts. It must run, and it must run before build.
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Build the playground against the built package
+        run: |
+          cd playground
+          npm install
+          npm run typecheck
+          npm run build
+      - name: Theme and font regression tests
+        run: |
+          cd playground
+          npx playwright install --with-deps chromium
+          npm run test:e2e

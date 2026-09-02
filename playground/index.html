@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>console-ui playground</title>
+    <!--
+        Stamps [data-theme] before first paint so a stored manual override
+        doesn't flash the OS theme first. This is a working reference for the
+        pattern the package README documents for apps that want a manual
+        toggle: run this ahead of any body content and your module script,
+        keyed off whatever storage/cookie your app uses to remember the
+        choice.
+    -->
+    <script>
+        try {
+            var t = localStorage.getItem('ui-playground-theme');
+            if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

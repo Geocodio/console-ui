@@ -1,0 +1,23 @@
+/*
+ * Opt-in: deletes Tailwind's stock colour palette so an off-system colour is a
+ * build error rather than a code-review catch. Import BEFORE this package's
+ * tokens (i.e. immediately after `@import 'tailwindcss'` and before
+ * `@import '@geocodio/console-ui/styles.css'`).
+ *
+ * `--color-*: initial` below is a wildcard reset -- it wipes every `--color-*`
+ * custom property registered before it, not just Tailwind's stock palette.
+ * Importing this file AFTER the package's tokens (which register this
+ * package's own colours via an `@theme inline` block) deletes this package's
+ * colours too. There is no error: the build succeeds, and every colour
+ * utility -- Tailwind's and this package's alike -- silently fails to exist.
+ *
+ * Adopting this means `bg-gray-500`, `text-indigo-600` etc. stop existing.
+ * Audit for stock-palette usage first.
+ */
+@theme {
+    --color-*: initial;
+    --color-white: #ffffff;
+    --color-black: #000000;
+    --color-transparent: transparent;
+    --color-current: currentColor;
+}

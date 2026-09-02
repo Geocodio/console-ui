@@ -1,0 +1,92 @@
+@layer base {
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: var(--font-sans);
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text);
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    /* Base UI portals popups to the body and relies on a stacking context
+       rather than escalating z-index. Without this, a popup can render behind
+       app chrome. Safari 26+ additionally needs a positioned body for
+       backdrops to paint correctly. */
+    body {
+        position: relative;
+    }
+
+    /* Tailwind v4 removed the default pointer cursor on buttons. Restore it
+       once, globally, rather than sprinkling cursor-pointer utilities.
+       `Toggle`, `Checkbox` and `RadioGroup` render Base UI's `<span
+       role="switch|checkbox|radio">`, not a native form element, so a
+       selector list written for native elements (and `[role='button']`)
+       misses them entirely -- the ARIA roles are listed explicitly so those
+       controls get the same restoration. `data-disabled` (not
+       `aria-disabled`) is the disabled signal to match on for those spans:
+       it's the attribute Base UI sets on them for exactly this kind of CSS
+       hook (see the `data-[disabled]:opacity-50` comment on Checkbox.tsx),
+       and `[role='button']` elements that are natively-disabled buttons
+       already fall out via `button:not(:disabled)` above. Native
+       `input[type='checkbox'|'radio'|'file']` and `[role='tab']` are listed
+       alongside the ARIA-role spans -- an app may use the native inputs
+       directly instead of Base UI's, and both are legitimate, so both need
+       covering. Deliberately not extended to `[role='menuitem']`/
+       `[role='option']` -- Menu, Select and Combobox items set
+       `cursor-default` on purpose, matching the native convention that
+       menus use an arrow rather than a pointer. */
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    [role='switch']:not([data-disabled]),
+    [role='checkbox']:not([data-disabled]),
+    [role='radio']:not([data-disabled]),
+    [role='tab']:not([aria-disabled='true']),
+    select:not(:disabled),
+    input[type='checkbox']:not(:disabled),
+    input[type='radio']:not(:disabled),
+    input[type='file']:not(:disabled),
+    summary,
+    label[for],
+    a[href] {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    select:disabled,
+    [role='switch'][data-disabled],
+    [role='checkbox'][data-disabled],
+    [role='radio'][data-disabled],
+    [role='tab'][aria-disabled='true'],
+    input[type='checkbox']:disabled,
+    input[type='radio']:disabled,
+    input[type='file']:disabled {
+        cursor: not-allowed;
+    }
+
+    /* One global focus ring so buttons, links, tabs and summaries are all
+       covered. Individual controls may add a softer inner ring on top. */
+    :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+}
+
+/* Global, not per-animation: impossible to forget when adding a new one. */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+.tnum {
+    font-variant-numeric: tabular-nums;
+}

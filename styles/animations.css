@@ -1,0 +1,43 @@
+/*
+ * Tailwind v4 turns each --animate-* theme token into an animate-* utility,
+ * so a menu animates by adding a class rather than writing a keyframe.
+ * Entry animations only (120-220ms), with two exceptions that loop for as
+ * long as their component is mounted: `spinner-spin`, which is
+ * indeterminate, and `status-pulse`, which marks a live status.
+ * Exits otherwise are handled by the overlay transition hook, which keeps a
+ * node mounted while it leaves.
+ */
+@theme {
+    --animate-fade-in: fade-in 120ms ease-out;
+    --animate-pop-in: pop-in 140ms var(--ease-out-quart);
+    --animate-menu-in: menu-in 120ms var(--ease-out-quart);
+    --animate-sheet-in: sheet-in 220ms var(--ease-out-quart);
+    --animate-toast-in: toast-in 180ms var(--ease-out-quart);
+    --animate-spinner-spin: spinner-spin 0.7s linear infinite;
+    --animate-status-pulse: status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; }
+}
+@keyframes pop-in {
+    from { opacity: 0; transform: scale(0.98) translateY(4px); }
+}
+@keyframes menu-in {
+    from { opacity: 0; transform: scale(0.96); }
+}
+@keyframes sheet-in {
+    from { opacity: 0; transform: translateX(24px); }
+}
+/* Toasts centre with -translate-x-1/2; keeping the -50% X means the toast
+   rises into place without jumping horizontally. */
+@keyframes toast-in {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+}
+@keyframes spinner-spin {
+    to { transform: rotate(360deg); }
+}
+@keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
