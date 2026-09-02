@@ -2,6 +2,13 @@
 
 React components and design tokens for dashboards and internal tools, built on Base UI and Tailwind v4.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.png">
+  <img src="docs/screenshot-light.png" alt="console-ui playground showing the Display route: Spinner, Kbd, Skeleton, EmptyState, Badge and StatusPill components next to the component navigation">
+</picture>
+
+**[Open the playground ->](https://geocodio.github.io/console-ui/)**
+
 This is not a brand theme. It is a dense, neutral system for the kind of
 screens a team looks at all day: tables, forms, settings, consoles. Keep your
 customer-facing brand styling in its own package; nothing here depends on it.
@@ -873,6 +880,10 @@ An app that wants a manual override stamps `data-theme="light"` or
 inline script in `<head>`, before first paint.
 
 ## Playground
+
+A hosted build of the playground is at
+[geocodio.github.io/console-ui](https://geocodio.github.io/console-ui/). It is
+rebuilt from `main` on every push. To run it locally:
 
 ```bash
 npm run build && cd playground && npm install && npm run dev
