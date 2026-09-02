@@ -2,9 +2,9 @@
 
 React components and design tokens for dashboards and internal tools, built on Base UI and Tailwind v4.
 
-For the Geocodio marketing site and customer dashboard, use `@geocodio/tailwind-theme`
-instead — that is the brand theme, this is the internal-tools system. They are
-deliberately separate and neither depends on the other.
+This is not a brand theme. It is a dense, neutral system for the kind of
+screens a team looks at all day: tables, forms, settings, consoles. Keep your
+customer-facing brand styling in its own package; nothing here depends on it.
 
 ## Installation
 
