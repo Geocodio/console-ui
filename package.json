@@ -56,8 +56,7 @@
     "url": "git+https://github.com/Geocodio/console-ui.git"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "homepage": "https://github.com/Geocodio/console-ui#readme",
   "bugs": {
