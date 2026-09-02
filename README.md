@@ -355,10 +355,14 @@ const [open, setOpen] = useState(false);
 | `children` | `React.ReactNode` | — | Rendered inside the popup after the list. A `ConfirmDialog` here nests, so Escape/backdrop close only the confirm. |
 | `className` / ...rest | | | Land on the popup, plus a forwarded ref to it. |
 
-`CommandPaletteItem`: `{ id, label, hint?, shortcut?: string[], destructive?, nested?, onSelect, testId? }`.
+`CommandPaletteItem`: `{ id, label, hint?, shortcut?: string[], destructive?, nested?, href?, onSelect, testId? }`.
 Rows are `<button>`s carrying `data-testid` (`testId`, else `palette-item-<id>`) and
 `data-selected="true"` on the current one. `shortcut` renders through `Kbd`; `nested`
-indents a row under its predecessor (a result's child actions).
+indents a row under its predecessor (a result's child actions). Give a row that
+navigates an `href` and it renders as an `<a>`: ⌘/Ctrl/Shift-click and middle-click
+open it in a new tab through the browser, while a plain click and Enter still call
+`onSelect` so the app can route it (Inertia visit, recents bookkeeping, closing the
+palette).
 
 The shell of a ⌘K palette — top-anchored modal, search input, sectioned list,
 arrow/Enter/hover selection, scroll-into-view — with none of the data. Each app

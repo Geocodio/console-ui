@@ -16,8 +16,19 @@ export interface CommandPaletteItem {
     destructive?: boolean;
     /** Indents the row under the one above it, for child actions of a result. */
     nested?: boolean;
+    /**
+     * Renders the row as an `<a>` so it behaves like a link: modifier-clicks
+     * and middle-clicks open it in a new tab through the browser, plain
+     * clicks and Enter still go through `onSelect`.
+     */
+    href?: string;
     onSelect: () => void;
     testId?: string;
+}
+
+/** True for the clicks a browser turns into "open in a new tab/window" -- ⌘/Ctrl/Shift/Alt or a non-primary button. */
+export function isModifiedClick(event: React.MouseEvent): boolean {
+    return event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
 }
 
 export interface CommandPaletteSection {
@@ -59,6 +70,62 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
     children?: React.ReactNode;
 }
 
+interface PaletteRowProps {
+    item: CommandPaletteItem;
+    selected: boolean;
+    onHover: () => void;
+}
+
+export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
+    const shared = {
+        'data-testid': item.testId ?? `palette-item-${item.id}`,
+        'data-selected': selected ? 'true' : undefined,
+        onMouseEnter: onHover,
+        className: cn(
+            'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
+            item.nested ? 'pl-7 pr-3' : 'px-3',
+            item.destructive ? 'text-fail' : 'text-body',
+            selected ? 'bg-accent-soft' : 'hover:bg-accent-soft',
+        ),
+    };
+    const content = (
+        <>
+            <span className="min-w-0 truncate">
+                {item.nested && <span className="mr-1.5 text-faint">↳</span>}
+                {item.label}
+            </span>
+            <span className="flex shrink-0 items-center gap-2 text-[11px] text-faint">
+                {item.shortcut && <Kbd keys={item.shortcut} />}
+                {item.hint && <span>{item.hint}</span>}
+            </span>
+        </>
+    );
+
+    if (item.href) {
+        return (
+            <a
+                {...shared}
+                href={item.href}
+                onClick={(event) => {
+                    if (isModifiedClick(event)) {
+                        return;
+                    }
+                    event.preventDefault();
+                    item.onSelect();
+                }}
+            >
+                {content}
+            </a>
+        );
+    }
+
+    return (
+        <button {...shared} type="button" onClick={item.onSelect}>
+            {content}
+        </button>
+    );
+}
+
 /**
  * The shell of a ⌘K-style palette: a top-anchored modal with a search input,
  * a sectioned list and keyboard selection. It owns none of the data -- the
@@ -68,7 +135,8 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
  *
  * Rows are plain `<button>`s, not a listbox: a palette mixes navigation,
  * commands and result rows, and the callers' existing tests address them as
- * buttons. The current row carries `data-selected="true"`.
+ * buttons. A row given an `href` is an `<a>` instead, so ⌘-click opens it in
+ * a new tab. The current row carries `data-selected="true"`.
  *
  * Built on Base UI's dialog for the portal, focus containment, scroll lock,
  * Escape and backdrop dismissal, and nested-dialog awareness. The input is a
@@ -197,29 +265,12 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                                         const isSelected = index === selected;
 
                                         return (
-                                            <button
+                                            <PaletteRow
                                                 key={item.id}
-                                                type="button"
-                                                data-testid={item.testId ?? `palette-item-${item.id}`}
-                                                data-selected={isSelected ? 'true' : undefined}
-                                                onClick={item.onSelect}
-                                                onMouseEnter={() => setSelected(index)}
-                                                className={cn(
-                                                    'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
-                                                    item.nested ? 'pl-7 pr-3' : 'px-3',
-                                                    item.destructive ? 'text-fail' : 'text-body',
-                                                    isSelected ? 'bg-accent-soft' : 'hover:bg-accent-soft',
-                                                )}
-                                            >
-                                                <span className="min-w-0 truncate">
-                                                    {item.nested && <span className="mr-1.5 text-faint">↳</span>}
-                                                    {item.label}
-                                                </span>
-                                                <span className="flex shrink-0 items-center gap-2 text-[11px] text-faint">
-                                                    {item.shortcut && <Kbd keys={item.shortcut} />}
-                                                    {item.hint && <span>{item.hint}</span>}
-                                                </span>
-                                            </button>
+                                                item={item}
+                                                selected={isSelected}
+                                                onHover={() => setSelected(index)}
+                                            />
                                         );
                                     })}
                                 </div>
