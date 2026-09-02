@@ -16,8 +16,10 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer; Node 22 bundles npm 10.
+      - run: npm install -g npm@11
       - run: npm ci
       - run: npm test
-      - run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # Auth is OIDC via the trusted publisher on npmjs.com. Provenance is
+      # attached automatically; no token is involved.
+      - run: npm publish --access public
