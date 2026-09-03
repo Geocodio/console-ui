@@ -8,6 +8,13 @@
  * instead of snapping.
  *
  * This is what replaces the bespoke mount-through-exit hook the apps had.
+ *
+ * Centering is done with Tailwind's translate utilities, which compile to the
+ * standalone `translate` property, not to `transform`. The two compose: the
+ * browser applies `translate` first and `transform` after. So the rules below
+ * put only the entry/exit offset and scale in `transform` -- repeating the
+ * centering -50% there would apply it twice and throw the popup up and to the
+ * left as it animates.
  */
 .ui-backdrop {
     transition: opacity var(--duration-overlay, 200ms) var(--ease-out-quart);
@@ -25,11 +32,11 @@
 .ui-popup[data-starting-style],
 .ui-popup[data-ending-style] {
     opacity: 0;
-    transform: translate(-50%, calc(-50% + 4px)) scale(0.98);
+    transform: translateY(4px) scale(0.98);
 }
 
-/* Command palette: anchored near the top rather than centred, so it keeps
-   only the horizontal centring translate and drops in from 4px above. */
+/* Command palette: anchored near the top rather than centred, so it drops in
+   from 4px above. */
 .ui-palette {
     transition:
         opacity var(--duration-overlay, 200ms) var(--ease-out-quart),
@@ -38,11 +45,12 @@
 .ui-palette[data-starting-style],
 .ui-palette[data-ending-style] {
     opacity: 0;
-    transform: translate(-50%, -4px) scale(0.98);
+    transform: translateY(-4px) scale(0.98);
 }
 
 /* Positioned popups (menus, tooltips) are placed by Base UI's Positioner, so
-   they must not carry the centering translate the dialog popup uses. */
+   they carry no centering translate of their own and scale about the
+   anchor-derived origin instead of their own centre. */
 .ui-floating {
     transform-origin: var(--transform-origin);
     transition:
