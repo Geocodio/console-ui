@@ -29,10 +29,11 @@
 @keyframes sheet-in {
     from { opacity: 0; transform: translateX(24px); }
 }
-/* Toasts centre with -translate-x-1/2; keeping the -50% X means the toast
-   rises into place without jumping horizontally. */
+/* A centred toast is centred with -translate-x-1/2, which compiles to the
+   `translate` property and composes with `transform`, so this keyframe moves
+   only on Y and the toast rises into place without jumping horizontally. */
 @keyframes toast-in {
-    from { opacity: 0; transform: translate(-50%, 8px); }
+    from { opacity: 0; transform: translateY(8px); }
 }
 @keyframes spinner-spin {
     to { transform: rotate(360deg); }
