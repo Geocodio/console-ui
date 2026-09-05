@@ -41,3 +41,11 @@ test('every custom property is exposed as a Tailwind theme token', () => {
         expect(theme).toContain(token);
     }
 });
+
+test('brand tokens are mapped to utilities but ship no value', () => {
+    expect(tokens).not.toMatch(/--brand:/);
+    expect(tokens).not.toMatch(/--brand-soft:/);
+    const theme = tokens.slice(tokens.indexOf('@theme'));
+    expect(theme).toContain('--color-brand: var(--brand)');
+    expect(theme).toContain('--color-brand-soft: var(--brand-soft)');
+});

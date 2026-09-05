@@ -36,6 +36,13 @@
        dark-mode primary buttons use a dark ink instead. */
     --accent-ink: light-dark(#ffffff, #1a1620);
 
+    /* App identity. Each app declares `--brand` and `--brand-soft` in its own
+       stylesheet (see README "Brand colour"); the package maps them to
+       utilities below but deliberately ships no value, so a tool without a
+       brand colour renders a visible gap rather than the shared accent. The
+       brand colour is for the mark, the favicon and the active nav rail only.
+       Buttons, links and focus rings stay on --accent in every tool. */
+
     /* DEPARTURE 1: semantic names, not hue names. App-specific tokens such as
        a build console's `--run` are deliberately absent -- alias them app-side. */
     --ok: light-dark(#3e8e38, #6fbe68);
@@ -109,6 +116,8 @@
     --color-accent-soft: var(--accent-soft);
     --color-accent-text: var(--accent-text);
     --color-accent-ink: var(--accent-ink);
+    --color-brand: var(--brand);
+    --color-brand-soft: var(--brand-soft);
     --color-ok: var(--ok);
     --color-ok-soft: var(--ok-soft);
     --color-warn: var(--warn);
