@@ -20,25 +20,25 @@ describe('BrandMarkIcon', () => {
 
 describe('AppBrand', () => {
     it('renders a root link with the mark and the name', () => {
-        const html = renderToStaticMarkup(<AppBrand name="Atlas" mark={mark} />);
+        const html = renderToStaticMarkup(<AppBrand name="Ledger" mark={mark} />);
 
         expect(html).toContain('href="/"');
         expect(html).toContain('width="20" height="20"');
-        expect(html).toContain('>Atlas</span>');
+        expect(html).toContain('>Ledger</span>');
     });
 
     it('drops the name but keeps an accessible label when compact', () => {
-        const html = renderToStaticMarkup(<AppBrand name="Atlas" mark={mark} compact />);
+        const html = renderToStaticMarkup(<AppBrand name="Ledger" mark={mark} compact />);
 
         expect(html).not.toContain('</span>');
-        expect(html).toContain('aria-label="Atlas"');
+        expect(html).toContain('aria-label="Ledger"');
     });
 
     it('renders through the supplied link component', () => {
         const Link = ({ href, children }: { href: string; children?: React.ReactNode }) => (
             <span data-href={href}>{children}</span>
         );
-        const html = renderToStaticMarkup(<AppBrand name="Atlas" mark={mark} href="/inbox" LinkComponent={Link} />);
+        const html = renderToStaticMarkup(<AppBrand name="Ledger" mark={mark} href="/inbox" LinkComponent={Link} />);
 
         expect(html).toContain('data-href="/inbox"');
     });

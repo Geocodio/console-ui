@@ -760,12 +760,12 @@ same definition renders here and serialises to the tab favicon.
 import { AppBrand, type BrandMark } from '@geocodio/console-ui';
 import { Link } from '@inertiajs/react';
 
-export const ATLAS_MARK: BrandMark = {
+export const LEDGER_MARK: BrandMark = {
     viewBox: '0 0 64 64',
     shapes: [{ tag: 'path', attrs: { 'fill-rule': 'evenodd', d: 'M32 4 L39 25 L60 32 …' } }],
 };
 
-<AppBrand name="Atlas" mark={ATLAS_MARK} LinkComponent={Link} />
+<AppBrand name="Ledger" mark={LEDGER_MARK} LinkComponent={Link} />
 ```
 
 | Prop | Type | Default | Description |
@@ -777,7 +777,7 @@ export const ATLAS_MARK: BrandMark = {
 | `compact` | `boolean` | `false` | Mark only, with the name as `aria-label`, for narrow rails. |
 | `className` | `string` | — | Merged onto the link via `cn`. |
 
-A mark follows the crab rule: one flat colour, one closed silhouette, and no
+A mark follows one rule: one flat colour, one closed silhouette, and no
 stroke thinner than 2.6 units on a 64-unit grid, so it survives the 16px
 favicon and the 12px pinned tab. `BrandMarkIcon` renders a mark on its own at
 any `size`; `brandMarkSvg` and `brandMarkDataUri` serialise it for static
@@ -790,7 +790,7 @@ scheme, because the tab strip does. An optional `pip` adds a status dot knocked
 out of the tab background. Pass `pip: null` for the plain mark.
 
 ```tsx
-useBrandFavicon(ATLAS_MARK, { light: '#0e8a86', dark: '#3fc1bb' }, { pip: unread ? '#3d7cb8' : null });
+useBrandFavicon(LEDGER_MARK, { light: '#0e8a86', dark: '#3fc1bb' }, { pip: unread ? '#3d7cb8' : null });
 ```
 
 | Argument | Type | Description |

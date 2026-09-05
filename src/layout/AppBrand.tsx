@@ -42,7 +42,7 @@ const DefaultLink = forwardRef<HTMLAnchorElement, AppBrandLinkProps>(function De
 });
 
 export interface AppBrandProps {
-    /** The tool's display name, e.g. `'Atlas'`. */
+    /** The tool's display name, e.g. `'Ledger'`. */
     name: string;
     mark: BrandMark;
     /** Where the lockup links. Defaults to the app root. */
