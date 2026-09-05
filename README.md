@@ -749,6 +749,61 @@ const SECTIONS: SettingsNavSection[] = [
 </SettingsShell>
 ```
 
+#### AppBrand
+
+The corner lockup every tool opens its sidebar with: a 20px mark in the app's
+brand colour beside its name, at fixed sizes so the tools line up when they sit
+in adjacent tabs. The mark is a `BrandMark`: shapes as data, drawn once, so the
+same definition renders here and serialises to the tab favicon.
+
+```tsx
+import { AppBrand, type BrandMark } from '@geocodio/console-ui';
+import { Link } from '@inertiajs/react';
+
+export const ATLAS_MARK: BrandMark = {
+    viewBox: '0 0 64 64',
+    shapes: [{ tag: 'path', attrs: { 'fill-rule': 'evenodd', d: 'M32 4 L39 25 L60 32 …' } }],
+};
+
+<AppBrand name="Atlas" mark={ATLAS_MARK} LinkComponent={Link} />
+```
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `name` | `string` | — | Required. The tool's display name. |
+| `mark` | `BrandMark` | — | Required. `{ viewBox, faviconViewBox?, shapes }`; each shape is `{ tag, attrs }` where `tag` is `path`, `circle`, `ellipse`, `rect`, `line` or `polygon`. Fills inherit `currentColor`; a stroked shape sets `stroke: 'currentColor'` itself. |
+| `href` | `string` | `'/'` | Where the lockup links. |
+| `LinkComponent` | `React.ComponentType<AppBrandLinkProps>` | `<a>` | Renders the link. Receives `href`, `className`, `children`, `aria-label`, which Inertia's `Link` accepts as-is. |
+| `compact` | `boolean` | `false` | Mark only, with the name as `aria-label`, for narrow rails. |
+| `className` | `string` | — | Merged onto the link via `cn`. |
+
+A mark follows the crab rule: one flat colour, one closed silhouette, and no
+stroke thinner than 2.6 units on a 64-unit grid, so it survives the 16px
+favicon and the 12px pinned tab. `BrandMarkIcon` renders a mark on its own at
+any `size`; `brandMarkSvg` and `brandMarkDataUri` serialise it for static
+assets (`public/favicon.svg`, touch icons).
+
+#### useBrandFavicon
+
+Draws the mark as the tab favicon in the brand colour and follows the OS colour
+scheme, because the tab strip does. An optional `pip` adds a status dot knocked
+out of the tab background. Pass `pip: null` for the plain mark.
+
+```tsx
+useBrandFavicon(ATLAS_MARK, { light: '#0e8a86', dark: '#3fc1bb' }, { pip: unread ? '#3d7cb8' : null });
+```
+
+| Argument | Type | Description |
+|---|---|---|
+| `mark` | `BrandMark` | The mark to draw. Uses `faviconViewBox` when set. |
+| `color` | `{ light, dark }` | Literal hex values: a favicon cannot read CSS custom properties, so mirror the app's `--brand` pair by hand. |
+| `options.pip` | `string \| null` | Pip colour, or `null` for none. |
+| `options.pipBackground` | `{ light, dark }` | The tab-strip colours the pip is knocked out of. Defaults to the package's `--panel` pair. |
+
+The hook appends its own `<link rel="icon" data-brand-favicon>` after any
+static icon link the page ships for first paint, so keep a static
+`public/favicon.svg` too.
+
 ## Conventions
 
 Three things learned the hard way, kept here so they don't have to be
@@ -878,6 +933,26 @@ JavaScript is involved — the correct theme paints on the first byte.
 An app that wants a manual override stamps `data-theme="light"` or
 `data-theme="dark"` on `<html>`. To avoid a flash, stamp it from a blocking
 inline script in `<head>`, before first paint.
+
+### Brand colour
+
+Every tool declares one brand colour in its own stylesheet, in the same shape
+as the package's accent. The package maps `--brand` and `--brand-soft` to the
+`brand` and `brand-soft` colour utilities but ships no value, so a tool that
+forgets renders a visible gap instead of quietly inheriting the accent.
+
+```css
+:root {
+    --brand: light-dark(#0e8a86, #3fc1bb);
+    --brand-soft: light-dark(rgba(14, 138, 134, 0.10), rgba(63, 193, 187, 0.16));
+}
+```
+
+The brand colour is identity, not interaction: it belongs on the `AppBrand`
+mark, the favicon, the active nav rail and the touch icon. Buttons, links and
+focus rings stay on `--accent` in every tool, which is what keeps the tools
+reading as one system. Pick a hue that stays clear of the accent purple and of
+the four status colours.
 
 ## Playground
 
