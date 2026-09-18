@@ -80,7 +80,14 @@ function itemClassName(item: MenuItemSpec): string {
     return cn(ITEM_CLASSES, item.danger && DANGER_ITEM_CLASSES);
 }
 
-function MenuItems({ items }: { items: MenuItemSpec[] }) {
+/**
+ * The rows of a menu, rendered recursively so a submenu is the same code one level down.
+ *
+ * Exported for the same reason `PaletteRow` is: the test environment is `node` with no DOM, so
+ * `renderToStaticMarkup` is the only way to assert what a row renders, and Base UI puts the popup
+ * in a portal that static rendering never reaches. Not part of the documented surface.
+ */
+export function MenuItems({ items }: { items: MenuItemSpec[] }) {
     return (
         <>
             {items.map((item) => {
@@ -118,7 +125,17 @@ function MenuItems({ items }: { items: MenuItemSpec[] }) {
                         className={itemClassName(item)}
                         data-testid={item.testId}
                     >
-                        <BaseMenu.CheckboxItemIndicator className="shrink-0" keepMounted>
+                        {/*
+                            `keepMounted` leaves the indicator in the DOM when the row is
+                            unchecked, so a label does not shift sideways as the selection moves
+                            down a menu. That is only half a contract: something has to hide the
+                            tick itself, or every row in the menu draws one and a single-select
+                            menu reads as though everything in it were selected.
+
+                            `invisible` rather than `hidden`, because the indicator keeping its
+                            box is the whole reason `keepMounted` is here.
+                        */}
+                        <BaseMenu.CheckboxItemIndicator className="shrink-0 data-[unchecked]:invisible" keepMounted>
                             <CheckIcon />
                         </BaseMenu.CheckboxItemIndicator>
                         {item.icon}
