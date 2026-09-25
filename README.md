@@ -704,8 +704,11 @@ its label before its value. Header cells stay plain `Th`.
 
 The floating bottom bar for phones: a translucent pill with three to five
 slots and an optional round accent button beside it. The bar is a strip in
-normal flow (76px plus the safe area), so page content scrolls above it, not
-under it. It carries no breakpoint of its own; the app shell shows it with
+normal flow (80px: an 8px top pad, the 60px pill and a 12px bottom pad; on
+devices with a home indicator the bottom pad grows to the safe-area inset), so
+page content scrolls above it, not under it. The safe-area inset is only
+non-zero when the app's viewport meta tag carries `viewport-fit=cover`. It
+carries no breakpoint of its own; the app shell shows it with
 `className="lg:hidden"` beside a sidebar that is `hidden lg:flex`.
 
 | Prop | Type | Default | Description |
@@ -752,6 +755,8 @@ reachable. Above `sm` the overflow actions render as tertiary buttons.
 | ...rest | `React.HTMLAttributes<HTMLElement>` | — | Spread onto the `<header>`, plus a forwarded ref. Native `title` is excluded. |
 
 Test hooks: `page-header-crumbs`, `page-header-slot`, `page-header-actions`, `page-header-overflow-buttons`, `page-header-overflow-menu`, plus each overflow item's `testId` on its button.
+
+On a phone the overflow items live in the menu, so select them by their `menuitem` role rather than by `testId`; the `testId` lands on the hidden desktop button as well.
 
 #### SettingsShell
 
