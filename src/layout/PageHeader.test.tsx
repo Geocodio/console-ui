@@ -14,6 +14,20 @@ describe('PageHeader', () => {
         expect(html).toContain('font-medium text-body');
     });
 
+    it('renders two JSX crumbs without collision', () => {
+        const html = renderToStaticMarkup(
+            <PageHeader
+                crumbs={[
+                    <span key="a">A</span>,
+                    <span key="b">B</span>,
+                ]}
+            />,
+        );
+
+        expect(html).toContain('>A<');
+        expect(html).toContain('>B<');
+    });
+
     it('renders a title after the crumbs', () => {
         const html = renderToStaticMarkup(<PageHeader crumbs={['Tasks']} title="ENG-1290" />);
 
