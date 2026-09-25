@@ -67,7 +67,8 @@ export const PageHeader = forwardRef<HTMLElement, PageHeaderProps>(function Page
         >
             <div data-testid="page-header-crumbs" className="order-1 flex min-w-0 flex-1 items-center gap-1.5 text-[13px] sm:flex-initial">
                 {crumbs?.map((crumb, index) => (
-                    <span key={String(crumb)} className="flex min-w-0 items-center gap-1.5">
+                    // biome-ignore lint/suspicious/noArrayIndexKey: `crumbs` is a fixed, non-reorderable breadcrumb trail for one render -- there is no stable identity to key by other than position.
+                    <span key={index} className="flex min-w-0 items-center gap-1.5">
                         {index > 0 && <ChevronRightIcon />}
                         <span className={cn('min-w-0 truncate', index === crumbs.length - 1 && !title ? 'font-medium text-body' : 'text-muted')}>{crumb}</span>
                     </span>
