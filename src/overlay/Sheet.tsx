@@ -28,7 +28,7 @@ const POPUP_CLASSES: Record<NonNullable<SheetProps['side']>, string> = {
 
 /**
  * The right-side popup's width class composition, exported only so
- * `Sheet.test.tsx` can assert the viewport clamp survives without depending
+ * `Sheet.test.ts` can assert the viewport clamp survives without depending
  * on Base UI's `Drawer.Portal` rendering under `renderToStaticMarkup`, which
  * needs a `document` and produces empty markup in the vitest `node`
  * environment. Not part of the package's public API.
