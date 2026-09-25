@@ -11,5 +11,7 @@ export type {
     SettingsSearchHit,
 } from './searchSettingsNav.js';
 export { findSettingsNavItem, searchSettingsNav, settingsSearchHitHref } from './searchSettingsNav.js';
+export type { TabBarAction, TabBarItem, TabBarLinkProps, TabBarProps } from './TabBar.js';
+export { TabBar } from './TabBar.js';
 export type { BrandFaviconColor, UseBrandFaviconOptions } from './useBrandFavicon.js';
 export { useBrandFavicon } from './useBrandFavicon.js';

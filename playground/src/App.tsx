@@ -11,6 +11,7 @@ import { MenuRoute } from './routes/MenuRoute';
 import { PaletteRoute } from './routes/PaletteRoute';
 import { SettingsRoute } from './routes/SettingsRoute';
 import { SheetRoute } from './routes/SheetRoute';
+import { TabBarRoute } from './routes/TabBarRoute';
 import { TableRoute } from './routes/TableRoute';
 import { ToastRoute } from './routes/ToastRoute';
 import { Tokens } from './routes/Tokens';
@@ -93,6 +94,7 @@ const NAV_LINKS = [
     { href: '/display', label: 'Display', description: 'Badge, StatusPill, EmptyState, Skeleton, Spinner, Kbd' },
     { href: '/table', label: 'Table', description: 'Table, Thead, Tbody, Tr, Th, Td' },
     { href: '/settings', label: 'Settings', description: 'SettingsShell: nav, search, back link' },
+    { href: '/tab-bar', label: 'TabBar', description: 'Floating phone bottom bar' },
 ] as const;
 
 function Route() {
@@ -135,6 +137,9 @@ function Route() {
     }
     if (path === '/table') {
         return <TableRoute />;
+    }
+    if (path === '/tab-bar') {
+        return <TabBarRoute />;
     }
     return <Tokens />;
 }
