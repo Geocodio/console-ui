@@ -8,6 +8,8 @@ export type { SkeletonProps } from './Skeleton.js';
 export { Skeleton } from './Skeleton.js';
 export type { SpinnerProps, SpinnerSize } from './Spinner.js';
 export { Spinner } from './Spinner.js';
+export type { StackedTdProps } from './StackedTable.js';
+export { StackedTable, StackedTbody, StackedTd, StackedThead, StackedTr } from './StackedTable.js';
 export type { StatusPillProps, StatusPillTone } from './StatusPill.js';
 export { StatusPill } from './StatusPill.js';
 export type { TrProps } from './Table.js';
