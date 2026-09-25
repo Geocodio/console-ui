@@ -12,6 +12,7 @@ import { PageHeaderRoute } from './routes/PageHeaderRoute';
 import { PaletteRoute } from './routes/PaletteRoute';
 import { SettingsRoute } from './routes/SettingsRoute';
 import { SheetRoute } from './routes/SheetRoute';
+import { StackedTableRoute } from './routes/StackedTableRoute';
 import { TabBarRoute } from './routes/TabBarRoute';
 import { TableRoute } from './routes/TableRoute';
 import { ToastRoute } from './routes/ToastRoute';
@@ -94,6 +95,7 @@ const NAV_LINKS = [
     { href: '/toast', label: 'Toast', description: 'Stacked notifications' },
     { href: '/display', label: 'Display', description: 'Badge, StatusPill, EmptyState, Skeleton, Spinner, Kbd' },
     { href: '/table', label: 'Table', description: 'Table, Thead, Tbody, Tr, Th, Td' },
+    { href: '/stacked-table', label: 'StackedTable', description: 'Table that stacks below md' },
     { href: '/settings', label: 'Settings', description: 'SettingsShell: nav, search, back link' },
     { href: '/tab-bar', label: 'TabBar', description: 'Floating phone bottom bar' },
     { href: '/page-header', label: 'PageHeader', description: 'Crumbs, actions, overflow, wrapping slot' },
@@ -139,6 +141,9 @@ function Route() {
     }
     if (path === '/table') {
         return <TableRoute />;
+    }
+    if (path === '/stacked-table') {
+        return <StackedTableRoute />;
     }
     if (path === '/tab-bar') {
         return <TabBarRoute />;

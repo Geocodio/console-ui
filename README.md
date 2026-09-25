@@ -668,6 +668,36 @@ wanting monospace columns (build IDs, coordinates) passes
 </Table>
 ```
 
+#### StackedTable
+
+`Table` parts that collapse into stacked rows below `md`. Above `md` they are
+exactly `Table`/`Thead`/`Tbody`/`Tr`/`Td`, so a page swaps its imports, adds
+a `label` to each `StackedTd`, and keeps its markup. Below `md` the header
+hides, each row becomes a block with a hairline under it, and each cell shows
+its label before its value. Header cells stay plain `Th`.
+
+| Part | Extra prop | Description |
+|---|---|---|
+| `StackedTable` | — | `Table` plus `max-md:block`. |
+| `StackedThead` | — | `Thead` plus `max-md:hidden`. |
+| `StackedTbody` | — | `Tbody` plus `max-md:block`. |
+| `StackedTr` | — | `Tr` (same `selected`/`interactive`) minus the fixed row height below `md`. |
+| `StackedTd` | `label?: string` | The column label drawn before the value below `md`. Omit for an actions cell. |
+
+```tsx
+<StackedTable>
+    <StackedThead>
+        <tr><Th>Repository</Th><Th>Status</Th></tr>
+    </StackedThead>
+    <StackedTbody>
+        <StackedTr>
+            <StackedTd label="Repository" className="font-mono">geocodio-dashboard</StackedTd>
+            <StackedTd label="Status"><Badge tone="ok">Active</Badge></StackedTd>
+        </StackedTr>
+    </StackedTbody>
+</StackedTable>
+```
+
 ### Layout
 
 #### TabBar
