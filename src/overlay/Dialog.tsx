@@ -5,7 +5,7 @@ import { forwardRef } from 'react';
 import { cn } from '../lib/cn.js';
 
 /**
- * The popup's base class string, exported only so `Dialog.test.tsx` can
+ * The popup's base class string, exported only so `Dialog.test.ts` can
  * assert the viewport clamp survives without depending on Base UI's
  * `Dialog.Portal` rendering under `renderToStaticMarkup`, which needs a
  * `document` and produces empty markup in the vitest `node` environment.
