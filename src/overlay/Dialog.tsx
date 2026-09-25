@@ -4,6 +4,16 @@ import type React from 'react';
 import { forwardRef } from 'react';
 import { cn } from '../lib/cn.js';
 
+/**
+ * The popup's base class string, exported only so `Dialog.test.tsx` can
+ * assert the viewport clamp survives without depending on Base UI's
+ * `Dialog.Portal` rendering under `renderToStaticMarkup`, which needs a
+ * `document` and produces empty markup in the vitest `node` environment.
+ * Not part of the package's public API.
+ */
+export const DIALOG_POPUP_CLASSES =
+    'ui-popup fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 max-w-[calc(100vw-1.5rem)]';
+
 export interface DialogProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title' | 'onKeyDown'> {
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -12,7 +22,7 @@ export interface DialogProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 
     /** Visually hides the title while keeping it as the accessible name. */
     hideTitle?: boolean;
     description?: string;
-    /** Tailwind width utility, e.g. 'w-96'. Defaults to 'w-96'. */
+    /** Tailwind width utility, e.g. 'w-96'. Defaults to 'w-96'. The popup is always capped at the viewport minus a 0.75rem gutter each side, so a fixed width still fits a phone. */
     width?: string;
     children: React.ReactNode;
     footer?: React.ReactNode;
@@ -87,7 +97,7 @@ export const Dialog = forwardRef<HTMLDivElement, DialogProps>(function Dialog(
                     ref={ref}
                     {...rest}
                     className={cn(
-                        'ui-popup fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
+                        DIALOG_POPUP_CLASSES,
                         width,
                         'rounded-card border border-hair bg-panel p-4 shadow-overlay',
                         className,

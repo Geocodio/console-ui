@@ -27,6 +27,15 @@ const POPUP_CLASSES: Record<NonNullable<SheetProps['side']>, string> = {
 };
 
 /**
+ * The right-side popup's width class composition, exported only so
+ * `Sheet.test.tsx` can assert the viewport clamp survives without depending
+ * on Base UI's `Drawer.Portal` rendering under `renderToStaticMarkup`, which
+ * needs a `document` and produces empty markup in the vitest `node`
+ * environment. Not part of the package's public API.
+ */
+export const SHEET_RIGHT_CLASSES = 'max-w-full';
+
+/**
  * The edge-anchored panel every slide-in/slide-up surface in the system
  * composes -- a right-side 480px slideover and a mobile bottom sheet are
  * both this component with a different `side`.
@@ -78,7 +87,7 @@ export const Sheet = forwardRef<HTMLDivElement, SheetProps>(function Sheet(
                         {...rest}
                         className={cn(
                             POPUP_CLASSES[side],
-                            side === 'right' && width,
+                            side === 'right' && cn(SHEET_RIGHT_CLASSES, width),
                             side === 'right' && 'pb-4',
                             'flex flex-col border-hair bg-panel pt-4 px-4 shadow-overlay',
                             className,
