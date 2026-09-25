@@ -670,6 +670,38 @@ wanting monospace columns (build IDs, coordinates) passes
 
 ### Layout
 
+#### TabBar
+
+The floating bottom bar for phones: a translucent pill with three to five
+slots and an optional round accent button beside it. The bar is a strip in
+normal flow (76px plus the safe area), so page content scrolls above it, not
+under it. It carries no breakpoint of its own; the app shell shows it with
+`className="lg:hidden"` beside a sidebar that is `hidden lg:flex`.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `items` | `TabBarItem[]` | — | Required. `{ key, label, icon, href?, onSelect?, active?, badge?, testId? }`. A slot with `href` renders through `LinkComponent`; one without renders a `<button>` (a "More" slot that opens a drawer). `badge` shows for a positive number or non-empty string. |
+| `action` | `TabBarAction` | — | `{ label, icon, onSelect, testId? }` for the round button. `label` is its accessible name. |
+| `LinkComponent` | `React.ComponentType<TabBarLinkProps>` | `<a>` | Receives `href`, `className`, `children`, `onClick`, `aria-current`, `data-testid`. Inertia apps pass `Link`. |
+| `label` | `string` | `'Main'` | Accessible name of the `<nav>`. |
+| ...rest | `React.HTMLAttributes<HTMLElement>` | — | Spread onto the `<nav>`, plus a forwarded ref. A caller's `data-testid` replaces the default `tab-bar`. |
+
+Test hooks: `tab-bar` on the nav, `<testId>` on each slot and `<testId>-badge` on its badge, the action's `testId` on the round button.
+
+```tsx
+<TabBar
+    className="lg:hidden"
+    LinkComponent={Link}
+    items={[
+        { key: 'tasks', label: 'Tasks', icon: <ClipboardList />, href: '/tasks', active: url.startsWith('/tasks'), badge: activeTaskCount },
+        { key: 'reviews', label: 'Reviews', icon: <MessageSquare />, href: '/pr-reviews', active: url.startsWith('/pr-reviews') },
+        { key: 'repos', label: 'Repos', icon: <Code2 />, href: '/repos', active: url.startsWith('/repos') },
+        { key: 'more', label: 'More', icon: <Menu />, onSelect: openDrawer },
+    ]}
+    action={{ label: 'New task', icon: <Plus />, onSelect: openNewTask }}
+/>
+```
+
 #### SettingsShell
 
 Full-window, Linear-style settings chrome: a sidebar (back link, search, icon
