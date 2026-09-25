@@ -53,7 +53,7 @@ export interface TabBarProps extends React.HTMLAttributes<HTMLElement> {
 
 const SLOT_CLASSES =
     'relative flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-pill text-[10px] font-medium leading-none';
-const SLOT_IDLE_CLASSES = 'text-faint hover:text-muted';
+const SLOT_IDLE_CLASSES = 'text-muted hover:text-body';
 const SLOT_ACTIVE_CLASSES = 'text-accent-text';
 
 function hasBadge(badge: TabBarItem['badge']): badge is number | string {
@@ -104,9 +104,11 @@ function Slot({ item, LinkComponent }: { item: TabBarItem; LinkComponent: React.
 /**
  * The floating bottom bar for phones: a translucent pill holding three to
  * five slots, and an optional round accent button beside it for the app's
- * one create action. The bar is a strip in normal flow (76px plus the safe
- * area), not an overlay, so page content never scrolls under it; the
- * gradient drawn above the strip makes content read as fading beneath.
+ * one create action. The bar is a strip in normal flow (80px: an 8px top pad,
+ * the 60px pill and a 12px bottom pad; on devices with a home indicator the
+ * bottom pad grows to the safe-area inset), not an overlay, so page content
+ * never scrolls under it; the gradient drawn above the strip makes content
+ * read as fading beneath.
  *
  * The bar carries no breakpoint of its own. The app shell decides when it
  * shows, normally `className="lg:hidden"` beside a sidebar that is `hidden
