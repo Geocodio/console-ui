@@ -8,6 +8,7 @@ import { DialogRoute } from './routes/DialogRoute';
 import { DisplayRoute } from './routes/DisplayRoute';
 import { FormRoute } from './routes/FormRoute';
 import { MenuRoute } from './routes/MenuRoute';
+import { PageHeaderRoute } from './routes/PageHeaderRoute';
 import { PaletteRoute } from './routes/PaletteRoute';
 import { SettingsRoute } from './routes/SettingsRoute';
 import { SheetRoute } from './routes/SheetRoute';
@@ -95,6 +96,7 @@ const NAV_LINKS = [
     { href: '/table', label: 'Table', description: 'Table, Thead, Tbody, Tr, Th, Td' },
     { href: '/settings', label: 'Settings', description: 'SettingsShell: nav, search, back link' },
     { href: '/tab-bar', label: 'TabBar', description: 'Floating phone bottom bar' },
+    { href: '/page-header', label: 'PageHeader', description: 'Crumbs, actions, overflow, wrapping slot' },
 ] as const;
 
 function Route() {
@@ -141,6 +143,9 @@ function Route() {
     if (path === '/tab-bar') {
         return <TabBarRoute />;
     }
+    if (path === '/page-header') {
+        return <PageHeaderRoute />;
+    }
     return <Tokens />;
 }
 
@@ -167,7 +172,7 @@ export function App() {
                     ))}
                 </div>
             </nav>
-            <main className="flex-1 p-8">
+            <main className="min-w-0 flex-1 p-8">
                 <Route />
             </main>
             {/* A short default keeps the "Default duration" demo on /toast

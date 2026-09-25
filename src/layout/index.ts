@@ -2,6 +2,8 @@ export type { AppBrandLinkProps, AppBrandProps, BrandMarkIconProps } from './App
 export { AppBrand, BrandMarkIcon } from './AppBrand.js';
 export type { BrandFaviconOptions, BrandMark, BrandMarkShape, BrandMarkShapeTag } from './brandMark.js';
 export { brandMarkDataUri, brandMarkSvg, serializeBrandMarkShapes } from './brandMark.js';
+export type { PageHeaderProps } from './PageHeader.js';
+export { PageHeader } from './PageHeader.js';
 export type { SettingsLinkProps, SettingsShellProps } from './SettingsShell.js';
 export { rememberSettingsReturnPath, SETTINGS_RETURN_TO_STORAGE_KEY, SettingsShell } from './SettingsShell.js';
 export type {

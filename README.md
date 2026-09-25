@@ -702,6 +702,27 @@ Test hooks: `tab-bar` on the nav, `<testId>` on each slot and `<testId>-badge` o
 />
 ```
 
+#### PageHeader
+
+The 48px page header: crumbs and title on the left, actions on the right, a
+middle slot for tab strips and toggles. Below `sm` it wraps instead of
+clipping: the slot drops to a full-width second row, crumbs truncate, and
+`overflow` actions fold into a "More" menu so the primary action stays
+reachable. Above `sm` the overflow actions render as tertiary buttons.
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `crumbs` | `React.ReactNode[]` | — | Breadcrumb trail. Without `title`, the last crumb is the current page. |
+| `title` | `React.ReactNode` | — | The current page, after the crumbs. |
+| `actions` | `React.ReactNode` | — | The primary action. Keep it to one button on pages that also pass `overflow`. |
+| `overflow` | `MenuItemSpec[]` | — | Secondary actions. Same shape as `Menu` items: `{ key, label, icon?, onSelect, danger?, disabled?, dividerAbove?, testId? }`. |
+| `overflowLabel` | `string` | `'More actions'` | Accessible name of the menu trigger. |
+| `overflowIcon` | `React.ReactNode` | three dots | The trigger's icon. |
+| `children` | `React.ReactNode` | — | The middle slot. |
+| ...rest | `React.HTMLAttributes<HTMLElement>` | — | Spread onto the `<header>`, plus a forwarded ref. Native `title` is excluded. |
+
+Test hooks: `page-header-crumbs`, `page-header-slot`, `page-header-actions`, `page-header-overflow-buttons`, `page-header-overflow-menu`, plus each overflow item's `testId` on its button.
+
 #### SettingsShell
 
 Full-window, Linear-style settings chrome: a sidebar (back link, search, icon
