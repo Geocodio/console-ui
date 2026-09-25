@@ -314,7 +314,7 @@ string with no selection concept, which doesn't fit this component's
 | `title` | `string` | — | Required. The dialog's accessible name, rendered as the heading unless `hideTitle`. |
 | `hideTitle` | `boolean` | `false` | Visually hides the title while keeping it as the accessible name. |
 | `description` | `string` | — | Optional supporting text under the title. |
-| `width` | `string` | `'w-96'` | Tailwind width utility for the popup. |
+| `width` | `string` | `'w-96'` | Tailwind width utility for the popup. Capped at `calc(100vw - 1.5rem)` so the default fits a 360px phone. |
 | `children` | `React.ReactNode` | — | Body content. |
 | `footer` | `React.ReactNode` | — | Rendered right-aligned below the body, typically action buttons. |
 | `alert` | `boolean` | `false` | Renders through `@base-ui/react/alert-dialog`: `role="alertdialog"`, always modal, backdrop cannot dismiss. Intended for `ConfirmDialog`. |
@@ -430,7 +430,7 @@ differed between the three palettes this replaces.
 | `title` | `string` | — | The sheet's accessible name. |
 | `hideTitle` | `boolean` | `false` | Visually hides the title while keeping it as the accessible name. |
 | `side` | `'right' \| 'bottom'` | `'right'` | Which edge it enters from. `'bottom'` is the mobile pattern. |
-| `width` | `string` | `'w-[480px]'` | Tailwind width utility, used only when `side='right'`. |
+| `width` | `string` | `'w-[480px]'` | Tailwind width utility, used only when `side='right'`. Capped at the viewport width. |
 | `children` | `React.ReactNode` | — | Body content. |
 | `className` | `string` | — | Classes on the popup panel — the sheet's primary surface. |
 | ...rest | `React.HTMLAttributes<HTMLDivElement>` (minus `title`) | — | Spread onto that panel, plus a forwarded ref to it. |
