@@ -1,9 +1,11 @@
-import { Sheet } from '@geocodio/console-ui';
+import { Sheet, Toggle } from '@geocodio/console-ui';
 import { useState } from 'react';
 
 export function SheetRoute() {
     const [rightOpen, setRightOpen] = useState(false);
     const [bottomOpen, setBottomOpen] = useState(false);
+    const [notifications, setNotifications] = useState(false);
+    const [notificationsChanges, setNotificationsChanges] = useState(0);
 
     return (
         <div className="text-body">
@@ -32,6 +34,17 @@ export function SheetRoute() {
                 <p className="text-[12.5px] text-muted">
                     This is the right-side slideover, 480px wide by default.
                 </p>
+                <div className="mt-4 flex items-center gap-2" data-testid="sheet-toggle-notifications">
+                    <Toggle
+                        checked={notifications}
+                        onCheckedChange={(checked) => {
+                            setNotifications(checked);
+                            setNotificationsChanges((count) => count + 1);
+                        }}
+                        label="Email notifications"
+                    />
+                    <span data-testid="sheet-toggle-notifications-count">{notificationsChanges}</span>
+                </div>
             </Sheet>
 
             <Sheet open={bottomOpen} onOpenChange={setBottomOpen} title="Queue" side="bottom">

@@ -81,6 +81,12 @@ function DashIcon() {
  * `disabled` are applied to `Checkbox.Root`, not onto the label itself, so a
  * caller cannot accidentally clobber this component's own controlled props
  * by spreading unrelated label attributes.
+ *
+ * `Checkbox.Root` renders a `<span role="checkbox">`, which Base UI's own
+ * `Sheet`/`Dialog` swipe-to-dismiss gesture doesn't recognize as interactive
+ * by default -- same reasoning as `Toggle.tsx`'s doc comment. Without
+ * `data-base-ui-swipe-ignore`, a mouse press on a checkbox inside an open
+ * `Sheet` starts the drawer's swipe gesture instead of toggling the box.
  */
 export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>(function Checkbox(
     { checked, onCheckedChange, label, hideLabel, disabled, id, className, ...rest },
@@ -101,6 +107,7 @@ export const Checkbox = forwardRef<HTMLLabelElement, CheckboxProps>(function Che
                 indeterminate={indeterminate}
                 onCheckedChange={onCheckedChange}
                 disabled={disabled}
+                data-base-ui-swipe-ignore
                 className={CONTROL}
             >
                 <BaseCheckbox.Indicator className="flex" keepMounted={false}>

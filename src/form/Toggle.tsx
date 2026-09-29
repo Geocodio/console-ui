@@ -37,6 +37,16 @@ export interface ToggleProps extends React.HTMLAttributes<HTMLSpanElement> {
  * component renders. Rest is spread BEFORE `checked`/`onCheckedChange`/
  * `disabled` so a caller cannot silently override this component's own
  * controlled state by spreading a same-named prop.
+ *
+ * `Switch.Root` renders a `<span role="switch">`, which Base UI's own
+ * `Sheet`/`Dialog` swipe-to-dismiss gesture doesn't recognize as interactive
+ * by default (its ignore list is `button,a,input,select,textarea,label,
+ * [role="button"]` -- confirmed against the installed 1.7.0's
+ * `useSwipeDismiss.mjs`). Placed inside an open `Sheet`, a mouse press on the
+ * toggle started the drawer's swipe gesture instead, which calls
+ * `setPointerCapture` on the popup (`DrawerViewport.mjs`) and retargets the
+ * click away before `onCheckedChange` ever fires. `data-base-ui-swipe-ignore`
+ * is Base UI's own opt-out for this (`internals/constants.mjs`).
  */
 export const Toggle = forwardRef<HTMLSpanElement, ToggleProps>(function Toggle(
     { checked, onCheckedChange, label, disabled, className, ...rest },
@@ -49,6 +59,7 @@ export const Toggle = forwardRef<HTMLSpanElement, ToggleProps>(function Toggle(
             checked={checked}
             onCheckedChange={onCheckedChange}
             disabled={disabled}
+            data-base-ui-swipe-ignore
             aria-label={label}
             className={cn(
                 // `inline-block` is load-bearing, not cosmetic. Base UI renders the root

@@ -43,6 +43,29 @@ test.describe('Sheet', () => {
         await expect(bottomDialog).toHaveAccessibleName('Queue');
     });
 
+    test('a mouse press on a Toggle inside the sheet toggles it instead of starting the swipe-dismiss gesture', async ({
+        page,
+    }) => {
+        // Regression test: Switch.Root renders a <span role="switch">, which
+        // Base UI's swipe-to-dismiss gesture didn't recognize as interactive
+        // by default -- a mouse press on it started the drawer's swipe
+        // gesture instead, which calls setPointerCapture on the popup and
+        // retargets the click away, so onCheckedChange never fired. jsdom has
+        // no pointer capture, so this only reproduces in a real browser.
+        await page.goto('/sheet');
+        await page.getByTestId('open-sheet-right').click();
+        const toggle = page.getByRole('switch', { name: 'Email notifications' });
+        await expect(toggle).toBeVisible();
+        const count = page.getByTestId('sheet-toggle-notifications-count');
+        await expect(count).toHaveText('0');
+
+        await toggle.click();
+
+        await expect(toggle).toHaveAttribute('aria-checked', 'true');
+        await expect(count).toHaveText('1');
+        await expect(page.getByRole('dialog')).toBeVisible();
+    });
+
     test('side="right" is anchored to the right edge, full height', async ({ page }) => {
         await page.goto('/sheet');
         await page.getByTestId('open-sheet-right').click();

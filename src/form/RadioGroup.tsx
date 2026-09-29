@@ -76,6 +76,12 @@ const RADIO_CONTROL =
  * renders. Rest is spread BEFORE `value`/`onValueChange`/`disabled` below, so
  * a caller cannot silently override this component's own controlled state
  * by spreading an unrelated prop of the same name.
+ *
+ * Each `Radio.Root` renders a `<span role="radio">`, which Base UI's own
+ * `Sheet`/`Dialog` swipe-to-dismiss gesture doesn't recognize as interactive
+ * by default -- same reasoning as `Toggle.tsx`'s doc comment. Without
+ * `data-base-ui-swipe-ignore` on each option, a mouse press on a radio inside
+ * an open `Sheet` starts the drawer's swipe gesture instead of selecting it.
  */
 export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function RadioGroup(
     { label, options, value, onChange, disabled, orientation = 'vertical', className, ...rest },
@@ -101,6 +107,7 @@ export const RadioGroup = forwardRef<HTMLDivElement, RadioGroupProps>(function R
                     <Radio.Root
                         value={option.value}
                         disabled={disabled || option.disabled}
+                        data-base-ui-swipe-ignore
                         className={cn(RADIO_CONTROL, 'mt-0.5')}
                     >
                         <Radio.Indicator className="flex size-1.5 rounded-full bg-accent" />
