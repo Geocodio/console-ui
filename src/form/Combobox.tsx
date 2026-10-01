@@ -22,6 +22,8 @@ export interface ComboboxProps
     disabled?: boolean;
     /** Classes for the popup panel -- the combobox's second surface. */
     popupClassName?: string;
+    /** Replaces Base UI's matcher. Receives the option and the typed query; return true to list it. */
+    filter?: (option: ComboboxOption, query: string) => boolean;
 }
 
 // Same visual spec as `TextInput`'s `CONTROL` (see that file for the
@@ -117,7 +119,7 @@ function isSameOption(a: ComboboxOption | null, b: ComboboxOption | null): boole
  * `Menu`'s shape for a second surface.
  */
 export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Combobox(
-    { options, value, onChange, placeholder, allowCustom, disabled, className, popupClassName, ...rest },
+    { options, value, onChange, placeholder, allowCustom, disabled, className, popupClassName, filter, ...rest },
     ref,
 ) {
     const selectedOption = options.find((option) => option.value === value) ?? null;
@@ -173,6 +175,7 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
     return (
         <BaseCombobox.Root
             items={effectiveOptions}
+            filter={filter ? (item: ComboboxOption, query: string) => filter(item, query) : undefined}
             value={effectiveSelected}
             isItemEqualToValue={isSameOption}
             onValueChange={(item) => {
