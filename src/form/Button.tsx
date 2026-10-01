@@ -67,11 +67,13 @@ function Spinner() {
  * direct flex item with `min-width: auto` they absorb all shrinkage and
  * collapse to 0x0. Inside this box `100%` resolves to 14px instead, the same
  * size as the spinner the slot swaps with, so `pending` no longer shifts the
- * label. The box does not clip, so a caller's own `size-*` on their svg still
- * renders at the size they asked for.
+ * label. WebKit does not resolve that implicit `100%` for a flex item and still
+ * collapses the svg, so the slot sizes it explicitly, under `:where()` so the
+ * rule carries no specificity. The box does not clip, so a caller's own
+ * `size-*` on their svg still renders at the size they asked for.
  */
 function IconSlot({ children }: { children: React.ReactNode }) {
-    return <span className="inline-flex size-3.5 shrink-0 items-center justify-center *:shrink-0">{children}</span>;
+    return <span className="inline-flex size-3.5 shrink-0 items-center justify-center *:shrink-0 [:where(&>svg)]:size-full">{children}</span>;
 }
 
 /**
