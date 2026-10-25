@@ -107,7 +107,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(function Select
                 <BaseSelect.Positioner className="outline-none" sideOffset={4}>
                     <BaseSelect.Popup
                         className={cn(
-                            'ui-floating min-w-[var(--anchor-width)] rounded-card border border-hair bg-panel p-1 shadow-overlay',
+                            'ui-floating max-h-[min(18rem,var(--available-height))] min-w-[var(--anchor-width)] overflow-y-auto rounded-card border border-hair bg-panel p-1 shadow-overlay',
                             popupClassName,
                         )}
                     >

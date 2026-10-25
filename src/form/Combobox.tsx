@@ -215,11 +215,11 @@ export const Combobox = forwardRef<HTMLInputElement, ComboboxProps>(function Com
                 <BaseCombobox.Positioner className="outline-none" sideOffset={4}>
                     <BaseCombobox.Popup
                         className={cn(
-                            'ui-floating min-w-[var(--anchor-width)] rounded-card border border-hair bg-panel p-1 shadow-overlay',
+                            'ui-floating max-h-[min(18rem,var(--available-height))] min-w-[var(--anchor-width)] overflow-y-auto rounded-card border border-hair bg-panel p-1 shadow-overlay',
                             popupClassName,
                         )}
                     >
-                        <BaseCombobox.Empty className="px-2.5 py-1.5 text-[12.5px] text-muted">
+                        <BaseCombobox.Empty className="px-2.5 py-1.5 text-[12.5px] text-muted empty:hidden">
                             No matches
                         </BaseCombobox.Empty>
                         <BaseCombobox.List>

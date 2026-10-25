@@ -37,3 +37,15 @@ describe('Combobox filter', () => {
         expect(screen.queryByText('MCP')).toBeNull();
     });
 });
+
+describe('Combobox popup', () => {
+    it('caps its height and scrolls so a long list stays inside the viewport', async () => {
+        render(<Combobox options={options} value={null} onChange={() => {}} />);
+
+        await userEvent.click(screen.getByRole('combobox'));
+
+        const popup = screen.getByRole('listbox').closest('.ui-floating');
+        expect(popup?.className).toMatch(/\bmax-h-/);
+        expect(popup?.className).toContain('overflow-y-auto');
+    });
+});
