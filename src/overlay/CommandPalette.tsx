@@ -130,7 +130,7 @@ function MoreIcon() {
 }
 
 export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
-    const hasMore = item.onMore !== undefined;
+    const hasMore = item.onMore !== undefined && !item.disabled;
     const stateClassName = selected ? 'bg-accent-soft' : !item.disabled && 'hover:bg-accent-soft';
     const shared = {
         'aria-disabled': item.disabled ? true : undefined,
@@ -162,28 +162,28 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
     );
 
     const rowElement = item.href ? (
-            <a
-                {...shared}
-                href={item.disabled ? undefined : item.href}
-                onClick={(event) => {
-                    if (isModifiedClick(event) && !item.disabled) {
-                        return;
-                    }
-                    event.preventDefault();
-                    if (!item.disabled) {
-                        item.onSelect();
-                    }
-                }}
-            >
-                {content}
-            </a>
+        <a
+            {...shared}
+            href={item.disabled ? undefined : item.href}
+            onClick={(event) => {
+                if (isModifiedClick(event) && !item.disabled) {
+                    return;
+                }
+                event.preventDefault();
+                if (!item.disabled) {
+                    item.onSelect();
+                }
+            }}
+        >
+            {content}
+        </a>
     ) : (
         <button {...shared} type="button" onClick={item.disabled ? undefined : item.onSelect}>
             {content}
         </button>
     );
 
-    if (!item.onMore) {
+    if (!item.onMore || item.disabled) {
         return rowElement;
     }
 
@@ -286,7 +286,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
             }
             return;
         }
-        if (step && onBack && (event.key === 'Escape' || (event.key === 'Backspace' && query === ''))) {
+        if (step && onBack && (event.key === 'Escape' || (event.key === 'Backspace' && query === '' && !event.repeat))) {
             event.preventDefault();
             if (event.key === 'Escape') {
                 claimEscape();
@@ -296,14 +296,14 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
         }
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
-            const step = event.key === 'ArrowDown' ? 1 : -1;
-            for (let next = selected + step; next >= 0 && next < items.length; next += step) {
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            for (let next = selected + direction; next >= 0 && next < items.length; next += direction) {
                 if (!items[next]?.disabled) {
                     setSelected(next);
                     break;
                 }
             }
-        } else if (event.key === 'Tab' && !event.shiftKey && items[selected]?.onMore) {
+        } else if (event.key === 'Tab' && !event.shiftKey && !items[selected]?.disabled && items[selected]?.onMore) {
             event.preventDefault();
             items[selected]?.onMore?.();
         } else if (event.key === 'Enter') {

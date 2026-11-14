@@ -91,6 +91,27 @@ describe('CommandPalette disabled rows', () => {
         expect(onSelect).not.toHaveBeenCalled();
     });
 
+    it('Enter does not call onSelect of a disabled row a controlled selectedIndex points at', async () => {
+        const onSelectDisabled = vi.fn();
+        const { input } = renderPalette([row('a'), row('b', { disabled: true, onSelect: onSelectDisabled })], { selectedIndex: 1 });
+
+        input.focus();
+        await userEvent.keyboard('{Enter}');
+
+        expect(onSelectDisabled).not.toHaveBeenCalled();
+    });
+
+    it('a disabled row with onMore has no more button and Tab does not call it', async () => {
+        const onMore = vi.fn();
+        const { input } = renderPalette([row('a', { disabled: true, onMore })]);
+
+        input.focus();
+        await userEvent.keyboard('{Tab}');
+
+        expect(screen.queryByRole('button', { name: 'More actions' })).toBeNull();
+        expect(onMore).not.toHaveBeenCalled();
+    });
+
     it('a list of only disabled rows selects nothing', () => {
         renderPalette([row('a', { disabled: true }), row('b', { disabled: true })]);
 
@@ -168,6 +189,15 @@ describe('CommandPalette steps', () => {
         await userEvent.keyboard('{Backspace}');
 
         expect(onBack).toHaveBeenCalledTimes(1);
+    });
+
+    it('a repeated Backspace on an empty input does not call onBack', () => {
+        const onBack = vi.fn();
+        const { input } = renderPalette([row('a')], { step: { title: 'Step' }, onBack });
+
+        fireEvent.keyDown(input, { key: 'Backspace', repeat: true });
+
+        expect(onBack).not.toHaveBeenCalled();
     });
 
     it('Backspace with text in the input does not call onBack', async () => {
