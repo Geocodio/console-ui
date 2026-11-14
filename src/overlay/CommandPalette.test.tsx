@@ -111,6 +111,14 @@ describe('CommandPalette more button', () => {
         expect(screen.getByRole('button', { name: 'Open actions' })).toBeDefined();
     });
 
+    it('keeps data-selected on the row button, which carries the data-testid', () => {
+        renderPalette([row('a', { onMore: noop })]);
+
+        const selectedElement = document.querySelector('[data-selected="true"]');
+        expect(selectedElement).toBe(screen.getByTestId('palette-item-a'));
+        expect(selectedElement?.tagName).toBe('BUTTON');
+    });
+
     it('clicking the more button calls onMore and not onSelect', async () => {
         const onMore = vi.fn();
         const onSelect = vi.fn();

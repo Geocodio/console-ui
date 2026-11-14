@@ -358,11 +358,13 @@ const [open, setOpen] = useState(false);
 | `onInputKeyDown` | `KeyboardEventHandler` | — | Runs before the palette's own handling. `preventDefault()` claims the key: arrows/Enter are skipped, and a claimed Escape keeps the palette open. |
 | `inputProps` | `InputHTMLAttributes` (minus value/onChange/onKeyDown/placeholder) | — | Spread onto the input — `data-testid`, `spellCheck`, `aria-*`. |
 | `inputRef` | `Ref<HTMLInputElement>` | — | |
+| `step` | `{ title: string }` | — | Marks a nested step: the title shows as a chip before the input. The caller owns the stack, rows and query reset. |
+| `onBack` | `() => void` | — | Leaves the current `step`. Called for Backspace on an empty input and for Escape, which then keeps the palette open. Ignored without a `step`. |
 | `width` | `string` | `'w-[min(600px,calc(100vw-2rem))]'` | Tailwind width utility for the popup. |
 | `children` | `React.ReactNode` | — | Rendered inside the popup after the list. A `ConfirmDialog` here nests, so Escape/backdrop close only the confirm. |
 | `className` / ...rest | | | Land on the popup, plus a forwarded ref to it. |
 
-`CommandPaletteItem`: `{ id, label, hint?, shortcut?: string[], destructive?, nested?, href?, onSelect, testId? }`.
+`CommandPaletteItem`: `{ id, label, hint?, shortcut?: string[], destructive?, nested?, href?, disabled?, disabledReason?, onMore?, moreLabel?, onSelect, testId? }`. A `disabled` row stays visible with its `disabledReason` but is skipped by arrows and ignores Enter and clicks. `onMore` adds a trailing "more" button (named by `moreLabel`, default "More actions") and also answers Tab on the selected row.
 Rows are `<button>`s carrying `data-testid` (`testId`, else `palette-item-<id>`) and
 `data-selected="true"` on the current one. `shortcut` renders through `Kbd`; `nested`
 indents a row under its predecessor (a result's child actions). Give a row that

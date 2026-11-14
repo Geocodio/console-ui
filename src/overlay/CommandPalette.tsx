@@ -136,7 +136,7 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
         'aria-disabled': item.disabled ? true : undefined,
         'data-disabled': item.disabled ? 'true' : undefined,
         'data-testid': item.testId ?? `palette-item-${item.id}`,
-        'data-selected': selected && !hasMore ? 'true' : undefined,
+        'data-selected': selected ? 'true' : undefined,
         onMouseEnter: onHover,
         className: cn(
             'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
@@ -189,7 +189,6 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
 
     return (
         <div
-            data-selected={selected ? 'true' : undefined}
             className={cn('flex w-full items-center rounded-control pr-1.5', stateClassName)}
         >
             {rowElement}
@@ -313,6 +312,22 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
         }
     };
 
+    const searchInput = (
+        <input
+            {...inputProps}
+            ref={inputRef}
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            className={cn(
+                'bg-transparent py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
+                step ? 'min-w-0 flex-1' : 'w-full border-b border-hair px-4',
+                inputProps?.className,
+            )}
+        />
+    );
+
     let rowIndex = -1;
 
     return (
@@ -339,28 +354,19 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                     )}
                 >
                     <BaseDialog.Title className="sr-only">{label}</BaseDialog.Title>
-                    <div className="flex items-center gap-2 border-b border-hair px-4">
-                    {step && (
-                        <span
-                            data-testid="palette-step"
-                            className="shrink-0 rounded-control bg-accent-soft px-2 py-0.5 text-[11.5px] text-body"
-                        >
-                            {step.title}
-                        </span>
+                    {step ? (
+                        <div className="flex items-center gap-2 border-b border-hair px-4">
+                            <span
+                                data-testid="palette-step"
+                                className="shrink-0 rounded-control bg-accent-soft px-2 py-0.5 text-[11.5px] text-body"
+                            >
+                                {step.title}
+                            </span>
+                            {searchInput}
+                        </div>
+                    ) : (
+                        searchInput
                     )}
-                    <input
-                        {...inputProps}
-                        ref={inputRef}
-                        value={query}
-                        onChange={(event) => onQueryChange(event.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        className={cn(
-                            'min-w-0 flex-1 bg-transparent py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
-                            inputProps?.className,
-                        )}
-                    />
-                    </div>
                     <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-1.5">
                         {sections.map((section, sectionIndex) =>
                             section.items.length === 0 ? null : (
