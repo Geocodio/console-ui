@@ -75,6 +75,17 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
     /** Spread onto the search input (`data-testid`, `spellCheck`, `aria-*`, ...). */
     inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onKeyDown' | 'placeholder'>;
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * Marks the palette as a nested step: its title shows as a chip before
+     * the input. The caller owns the stack, the rows and the query reset.
+     */
+    step?: { title: string };
+    /**
+     * Leaves the current `step`. Called for Backspace on an empty input and
+     * for Escape, which then keeps the palette open. Without a `step` both
+     * keys keep their usual behaviour.
+     */
+    onBack?: () => void;
     /** Tailwind width utility for the popup. */
     width?: string;
     /**
@@ -229,6 +240,8 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
         onInputKeyDown,
         inputProps,
         inputRef,
+        step,
+        onBack,
         width = 'w-[min(600px,calc(100vw-2rem))]',
         children,
         className,
@@ -261,14 +274,25 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
     }, [selected]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const claimEscape = () => {
+            escapeClaimedRef.current = true;
+            queueMicrotask(() => {
+                escapeClaimedRef.current = false;
+            });
+        };
         onInputKeyDown?.(event);
         if (event.defaultPrevented) {
             if (event.key === 'Escape') {
-                escapeClaimedRef.current = true;
-                queueMicrotask(() => {
-                    escapeClaimedRef.current = false;
-                });
+                claimEscape();
             }
+            return;
+        }
+        if (step && onBack && (event.key === 'Escape' || (event.key === 'Backspace' && query === ''))) {
+            event.preventDefault();
+            if (event.key === 'Escape') {
+                claimEscape();
+            }
+            onBack();
             return;
         }
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -315,6 +339,15 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                     )}
                 >
                     <BaseDialog.Title className="sr-only">{label}</BaseDialog.Title>
+                    <div className="flex items-center gap-2 border-b border-hair px-4">
+                    {step && (
+                        <span
+                            data-testid="palette-step"
+                            className="shrink-0 rounded-control bg-accent-soft px-2 py-0.5 text-[11.5px] text-body"
+                        >
+                            {step.title}
+                        </span>
+                    )}
                     <input
                         {...inputProps}
                         ref={inputRef}
@@ -323,10 +356,11 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                         onKeyDown={handleKeyDown}
                         placeholder={placeholder}
                         className={cn(
-                            'w-full border-b border-hair bg-transparent px-4 py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
+                            'min-w-0 flex-1 bg-transparent py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
                             inputProps?.className,
                         )}
                     />
+                    </div>
                     <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-1.5">
                         {sections.map((section, sectionIndex) =>
                             section.items.length === 0 ? null : (

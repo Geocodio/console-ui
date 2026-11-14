@@ -142,3 +142,71 @@ describe('CommandPalette more button', () => {
         expect(notPrevented).toBe(true);
     });
 });
+
+describe('CommandPalette steps', () => {
+    it('shows the step title as a chip before the input', () => {
+        const { input } = renderPalette([row('a')], { step: { title: 'us/tx/travis' } });
+
+        const chip = screen.getByTestId('palette-step');
+        expect(chip.textContent).toBe('us/tx/travis');
+        expect(chip.compareDocumentPosition(input) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('Backspace on an empty input calls onBack when a step is set', async () => {
+        const onBack = vi.fn();
+        const { input } = renderPalette([row('a')], { step: { title: 'Step' }, onBack });
+
+        input.focus();
+        await userEvent.keyboard('{Backspace}');
+
+        expect(onBack).toHaveBeenCalledTimes(1);
+    });
+
+    it('Backspace with text in the input does not call onBack', async () => {
+        const onBack = vi.fn();
+        const { input } = renderPalette([row('a')], { step: { title: 'Step' }, onBack, query: 'abc' });
+
+        input.focus();
+        await userEvent.keyboard('{Backspace}');
+
+        expect(onBack).not.toHaveBeenCalled();
+    });
+
+    it('Escape calls onBack and keeps the palette open when a step is set', async () => {
+        const onBack = vi.fn();
+        const { input, onOpenChange } = renderPalette([row('a')], { step: { title: 'Step' }, onBack });
+
+        input.focus();
+        await userEvent.keyboard('{Escape}');
+
+        expect(onBack).toHaveBeenCalledTimes(1);
+        expect(onOpenChange).not.toHaveBeenCalledWith(false);
+    });
+
+    it('Escape closes the palette when no step is set', async () => {
+        const { input, onOpenChange } = renderPalette([row('a')]);
+
+        input.focus();
+        await userEvent.keyboard('{Escape}');
+
+        expect(onOpenChange).toHaveBeenCalledWith(false);
+    });
+
+    it('onInputKeyDown still runs first and can claim Backspace', async () => {
+        const onBack = vi.fn();
+        const { input } = renderPalette([row('a')], {
+            step: { title: 'Step' },
+            onBack,
+            onInputKeyDown: (event) => {
+                if (event.key === 'Backspace') {
+                    event.preventDefault();
+                }
+            },
+        });
+
+        input.focus();
+        await userEvent.keyboard('{Backspace}');
+
+        expect(onBack).not.toHaveBeenCalled();
+    });
+});
