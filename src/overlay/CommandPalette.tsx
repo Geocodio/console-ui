@@ -22,6 +22,21 @@ export interface CommandPaletteItem {
      * clicks and Enter still go through `onSelect`.
      */
     href?: string;
+    /**
+     * The row cannot run now. It stays visible, is skipped by arrow keys and
+     * Enter, and ignores clicks.
+     */
+    disabled?: boolean;
+    /** Why a `disabled` row cannot run. Rendered after the label. */
+    disabledReason?: React.ReactNode;
+    /**
+     * Adds a trailing "more" button that opens child actions. The selected
+     * row also answers Tab with it, so the keyboard reaches it without
+     * leaving the input.
+     */
+    onMore?: () => void;
+    /** Accessible name of the more button. */
+    moreLabel?: string;
     onSelect: () => void;
     testId?: string;
 }
@@ -60,6 +75,17 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
     /** Spread onto the search input (`data-testid`, `spellCheck`, `aria-*`, ...). */
     inputProps?: Omit<React.InputHTMLAttributes<HTMLInputElement>, 'value' | 'onChange' | 'onKeyDown' | 'placeholder'>;
     inputRef?: React.Ref<HTMLInputElement>;
+    /**
+     * Marks the palette as a nested step: its title shows as a chip before
+     * the input. The caller owns the stack, the rows and the query reset.
+     */
+    step?: { title: string };
+    /**
+     * Leaves the current `step`. Called for Backspace on an empty input and
+     * for Escape, which then keeps the palette open. Without a `step` both
+     * keys keep their usual behaviour.
+     */
+    onBack?: () => void;
     /** Tailwind width utility for the popup. */
     width?: string;
     /**
@@ -70,14 +96,45 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
     children?: React.ReactNode;
 }
 
+/** The enabled row nearest to `index`, looking forward first; -1 when every row is disabled. */
+function resolveEnabledIndex(items: CommandPaletteItem[], index: number): number {
+    if (items.length === 0 || !items[index]?.disabled) {
+        return index;
+    }
+    const forward = items.findIndex((item, candidate) => candidate > index && !item.disabled);
+    if (forward !== -1) {
+        return forward;
+    }
+    for (let candidate = index - 1; candidate >= 0; candidate -= 1) {
+        if (!items[candidate]?.disabled) {
+            return candidate;
+        }
+    }
+    return -1;
+}
+
 interface PaletteRowProps {
     item: CommandPaletteItem;
     selected: boolean;
     onHover: () => void;
 }
 
+function MoreIcon() {
+    return (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" className="shrink-0">
+            <circle cx="2.5" cy="6" r="1.1" />
+            <circle cx="6" cy="6" r="1.1" />
+            <circle cx="9.5" cy="6" r="1.1" />
+        </svg>
+    );
+}
+
 export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
+    const hasMore = item.onMore !== undefined && !item.disabled;
+    const stateClassName = selected ? 'bg-accent-soft' : !item.disabled && 'hover:bg-accent-soft';
     const shared = {
+        'aria-disabled': item.disabled ? true : undefined,
+        'data-disabled': item.disabled ? 'true' : undefined,
         'data-testid': item.testId ?? `palette-item-${item.id}`,
         'data-selected': selected ? 'true' : undefined,
         onMouseEnter: onHover,
@@ -85,7 +142,9 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
             'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
             item.nested ? 'pl-7 pr-3' : 'px-3',
             item.destructive ? 'text-fail' : 'text-body',
-            selected ? 'bg-accent-soft' : 'hover:bg-accent-soft',
+            item.disabled && 'cursor-not-allowed text-faint',
+            !hasMore && stateClassName,
+            hasMore && 'min-w-0 flex-1',
         ),
     };
     const content = (
@@ -93,6 +152,7 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
             <span className="min-w-0 truncate">
                 {item.nested && <span className="mr-1.5 text-faint">↳</span>}
                 {item.label}
+                {item.disabled && item.disabledReason && <span className="ml-2 text-[11px]">{item.disabledReason}</span>}
             </span>
             <span className="flex shrink-0 items-center gap-2 text-[11px] text-faint">
                 {item.shortcut && <Kbd keys={item.shortcut} />}
@@ -101,28 +161,49 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
         </>
     );
 
-    if (item.href) {
-        return (
-            <a
-                {...shared}
-                href={item.href}
-                onClick={(event) => {
-                    if (isModifiedClick(event)) {
-                        return;
-                    }
-                    event.preventDefault();
+    const rowElement = item.href ? (
+        <a
+            {...shared}
+            href={item.disabled ? undefined : item.href}
+            onClick={(event) => {
+                if (isModifiedClick(event) && !item.disabled) {
+                    return;
+                }
+                event.preventDefault();
+                if (!item.disabled) {
                     item.onSelect();
-                }}
-            >
-                {content}
-            </a>
-        );
+                }
+            }}
+        >
+            {content}
+        </a>
+    ) : (
+        <button {...shared} type="button" onClick={item.disabled ? undefined : item.onSelect}>
+            {content}
+        </button>
+    );
+
+    if (!item.onMore || item.disabled) {
+        return rowElement;
     }
 
     return (
-        <button {...shared} type="button" onClick={item.onSelect}>
-            {content}
-        </button>
+        <div
+            className={cn('flex w-full items-center rounded-control pr-1.5', stateClassName)}
+        >
+            {rowElement}
+            <button
+                type="button"
+                tabIndex={-1}
+                onMouseEnter={onHover}
+                aria-label={item.moreLabel ?? 'More actions'}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={item.onMore}
+                className="flex size-6 shrink-0 items-center justify-center rounded-control text-faint hover:bg-hair hover:text-body"
+            >
+                <MoreIcon />
+            </button>
+        </div>
     );
 }
 
@@ -158,6 +239,8 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
         onInputKeyDown,
         inputProps,
         inputRef,
+        step,
+        onBack,
         width = 'w-[min(600px,calc(100vw-2rem))]',
         children,
         className,
@@ -167,7 +250,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
 ) {
     const items = useMemo(() => sections.flatMap((section) => section.items), [sections]);
     const [uncontrolledIndex, setUncontrolledIndex] = useState(0);
-    const selected = Math.min(controlledIndex ?? uncontrolledIndex, Math.max(0, items.length - 1));
+    const selected = resolveEnabledIndex(items, Math.min(controlledIndex ?? uncontrolledIndex, Math.max(0, items.length - 1)));
     const escapeClaimedRef = useRef(false);
     const listRef = useRef<HTMLDivElement>(null);
 
@@ -190,27 +273,60 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
     }, [selected]);
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        const claimEscape = () => {
+            escapeClaimedRef.current = true;
+            queueMicrotask(() => {
+                escapeClaimedRef.current = false;
+            });
+        };
         onInputKeyDown?.(event);
         if (event.defaultPrevented) {
             if (event.key === 'Escape') {
-                escapeClaimedRef.current = true;
-                queueMicrotask(() => {
-                    escapeClaimedRef.current = false;
-                });
+                claimEscape();
             }
             return;
         }
-        if (event.key === 'ArrowDown') {
+        if (step && onBack && (event.key === 'Escape' || (event.key === 'Backspace' && query === '' && !event.repeat))) {
             event.preventDefault();
-            setSelected(Math.min(items.length - 1, selected + 1));
-        } else if (event.key === 'ArrowUp') {
+            if (event.key === 'Escape') {
+                claimEscape();
+            }
+            onBack();
+            return;
+        }
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
-            setSelected(Math.max(0, selected - 1));
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            for (let next = selected + direction; next >= 0 && next < items.length; next += direction) {
+                if (!items[next]?.disabled) {
+                    setSelected(next);
+                    break;
+                }
+            }
+        } else if (event.key === 'Tab' && !event.shiftKey && !items[selected]?.disabled && items[selected]?.onMore) {
+            event.preventDefault();
+            items[selected]?.onMore?.();
         } else if (event.key === 'Enter') {
             event.preventDefault();
             items[selected]?.onSelect();
         }
     };
+
+    const searchInput = (
+        <input
+            {...inputProps}
+            ref={inputRef}
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            className={cn(
+                'bg-transparent py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
+                step ? 'min-w-0 flex-1' : 'w-full border-b border-hair px-4',
+                inputProps?.className,
+            )}
+        />
+    );
 
     let rowIndex = -1;
 
@@ -238,18 +354,19 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                     )}
                 >
                     <BaseDialog.Title className="sr-only">{label}</BaseDialog.Title>
-                    <input
-                        {...inputProps}
-                        ref={inputRef}
-                        value={query}
-                        onChange={(event) => onQueryChange(event.target.value)}
-                        onKeyDown={handleKeyDown}
-                        placeholder={placeholder}
-                        className={cn(
-                            'w-full border-b border-hair bg-transparent px-4 py-3 text-[13.5px] text-body outline-none placeholder:text-faint',
-                            inputProps?.className,
-                        )}
-                    />
+                    {step ? (
+                        <div className="flex items-center gap-2 border-b border-hair px-4">
+                            <span
+                                data-testid="palette-step"
+                                className="shrink-0 rounded-control bg-accent-soft px-2 py-0.5 text-[11.5px] text-body"
+                            >
+                                {step.title}
+                            </span>
+                            {searchInput}
+                        </div>
+                    ) : (
+                        searchInput
+                    )}
                     <div ref={listRef} className="max-h-[60vh] overflow-y-auto p-1.5">
                         {sections.map((section, sectionIndex) =>
                             section.items.length === 0 ? null : (
@@ -269,7 +386,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                                                 key={item.id}
                                                 item={item}
                                                 selected={isSelected}
-                                                onHover={() => setSelected(index)}
+                                                onHover={() => !item.disabled && setSelected(index)}
                                             />
                                         );
                                     })}

@@ -33,6 +33,8 @@ export function PaletteRoute() {
     const [pending, setPending] = useState<Entry | null>(null);
     const [lastSelected, setLastSelected] = useState('none');
     const [manyRows, setManyRows] = useState(false);
+    const [stepsDemo, setStepsDemo] = useState(false);
+    const [step, setStep] = useState<{ title: string } | null>(null);
 
     const choose = useCallback((id: string) => {
         setLastSelected(id);
@@ -40,6 +42,16 @@ export function PaletteRoute() {
     }, []);
 
     const sections = useMemo((): CommandPaletteSection[] => {
+        if (step) {
+            return [
+                {
+                    items: [
+                        { id: 'env-staging', label: 'Staging', onSelect: () => choose('env-staging') },
+                        { id: 'env-production', label: 'Production', disabled: true, disabledReason: 'Previews only', onSelect: () => {} },
+                    ],
+                },
+            ];
+        }
         const term = query.trim().toLowerCase();
         const source = manyRows
             ? Array.from({ length: 40 }, (_, index): Entry => ({ id: `row-${index}`, group: 'Navigate', label: `Row ${index}` }))
@@ -66,11 +78,21 @@ export function PaletteRoute() {
                 ];
             });
 
+        const stepEntry: CommandPaletteItem = {
+            id: 'pick-environment',
+            label: 'Run in environment…',
+            hint: 'steps',
+            onSelect: () => {
+                setStep({ title: 'Environment' });
+                setQuery('');
+            },
+        };
+
         return (['Recent', 'Actions', 'Navigate'] as const).map((group) => ({
             title: group,
-            items: toItems(matching.filter((entry) => entry.group === group)),
+            items: [...toItems(matching.filter((entry) => entry.group === group)), ...(group === 'Actions' && stepsDemo ? [stepEntry] : [])],
         }));
-    }, [query, expanded, manyRows, choose]);
+    }, [query, expanded, manyRows, choose, step, stepsDemo]);
 
     const items = sections.flatMap((section) => section.items);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -85,6 +107,7 @@ export function PaletteRoute() {
                     onClick={() => {
                         setQuery('');
                         setExpanded(null);
+                        setStep(null);
                         setSelectedIndex(0);
                         setOpen(true);
                     }}
@@ -93,6 +116,9 @@ export function PaletteRoute() {
                 </Button>
                 <Button data-testid="toggle-many" onClick={() => setManyRows((current) => !current)}>
                     {manyRows ? 'Few rows' : 'Many rows'}
+                </Button>
+                <Button data-testid="toggle-steps" onClick={() => setStepsDemo((current) => !current)}>
+                    {stepsDemo ? 'No steps' : 'Steps'}
                 </Button>
             </div>
             <p className="text-[12px] text-muted">
@@ -114,6 +140,12 @@ export function PaletteRoute() {
                 sections={sections}
                 selectedIndex={selectedIndex}
                 onSelectedIndexChange={setSelectedIndex}
+                step={step ?? undefined}
+                onBack={() => {
+                    setStep(null);
+                    setQuery('');
+                    setSelectedIndex(0);
+                }}
                 placeholder="Search, or > for commands"
                 data-testid="palette"
                 inputProps={{ 'data-testid': 'palette-input', spellCheck: false } as React.InputHTMLAttributes<HTMLInputElement>}
