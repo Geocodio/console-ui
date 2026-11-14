@@ -22,6 +22,13 @@ export interface CommandPaletteItem {
      * clicks and Enter still go through `onSelect`.
      */
     href?: string;
+    /**
+     * The row cannot run now. It stays visible, is skipped by arrow keys and
+     * Enter, and ignores clicks.
+     */
+    disabled?: boolean;
+    /** Why a `disabled` row cannot run. Rendered after the label. */
+    disabledReason?: React.ReactNode;
     onSelect: () => void;
     testId?: string;
 }
@@ -70,6 +77,23 @@ export interface CommandPaletteProps extends Omit<React.HTMLAttributes<HTMLDivEl
     children?: React.ReactNode;
 }
 
+/** The enabled row nearest to `index`, looking forward first; -1 when every row is disabled. */
+function resolveEnabledIndex(items: CommandPaletteItem[], index: number): number {
+    if (items.length === 0 || !items[index]?.disabled) {
+        return index;
+    }
+    const forward = items.findIndex((item, candidate) => candidate > index && !item.disabled);
+    if (forward !== -1) {
+        return forward;
+    }
+    for (let candidate = index - 1; candidate >= 0; candidate -= 1) {
+        if (!items[candidate]?.disabled) {
+            return candidate;
+        }
+    }
+    return -1;
+}
+
 interface PaletteRowProps {
     item: CommandPaletteItem;
     selected: boolean;
@@ -78,6 +102,8 @@ interface PaletteRowProps {
 
 export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
     const shared = {
+        'aria-disabled': item.disabled ? true : undefined,
+        'data-disabled': item.disabled ? 'true' : undefined,
         'data-testid': item.testId ?? `palette-item-${item.id}`,
         'data-selected': selected ? 'true' : undefined,
         onMouseEnter: onHover,
@@ -85,7 +111,8 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
             'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
             item.nested ? 'pl-7 pr-3' : 'px-3',
             item.destructive ? 'text-fail' : 'text-body',
-            selected ? 'bg-accent-soft' : 'hover:bg-accent-soft',
+            item.disabled && 'cursor-not-allowed text-faint',
+            selected ? 'bg-accent-soft' : !item.disabled && 'hover:bg-accent-soft',
         ),
     };
     const content = (
@@ -93,6 +120,7 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
             <span className="min-w-0 truncate">
                 {item.nested && <span className="mr-1.5 text-faint">↳</span>}
                 {item.label}
+                {item.disabled && item.disabledReason && <span className="ml-2 text-[11px]">{item.disabledReason}</span>}
             </span>
             <span className="flex shrink-0 items-center gap-2 text-[11px] text-faint">
                 {item.shortcut && <Kbd keys={item.shortcut} />}
@@ -105,13 +133,15 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
         return (
             <a
                 {...shared}
-                href={item.href}
+                href={item.disabled ? undefined : item.href}
                 onClick={(event) => {
-                    if (isModifiedClick(event)) {
+                    if (isModifiedClick(event) && !item.disabled) {
                         return;
                     }
                     event.preventDefault();
-                    item.onSelect();
+                    if (!item.disabled) {
+                        item.onSelect();
+                    }
                 }}
             >
                 {content}
@@ -120,7 +150,7 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
     }
 
     return (
-        <button {...shared} type="button" onClick={item.onSelect}>
+        <button {...shared} type="button" onClick={item.disabled ? undefined : item.onSelect}>
             {content}
         </button>
     );
@@ -167,7 +197,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
 ) {
     const items = useMemo(() => sections.flatMap((section) => section.items), [sections]);
     const [uncontrolledIndex, setUncontrolledIndex] = useState(0);
-    const selected = Math.min(controlledIndex ?? uncontrolledIndex, Math.max(0, items.length - 1));
+    const selected = resolveEnabledIndex(items, Math.min(controlledIndex ?? uncontrolledIndex, Math.max(0, items.length - 1)));
     const escapeClaimedRef = useRef(false);
     const listRef = useRef<HTMLDivElement>(null);
 
@@ -200,12 +230,15 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
             }
             return;
         }
-        if (event.key === 'ArrowDown') {
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
-            setSelected(Math.min(items.length - 1, selected + 1));
-        } else if (event.key === 'ArrowUp') {
-            event.preventDefault();
-            setSelected(Math.max(0, selected - 1));
+            const step = event.key === 'ArrowDown' ? 1 : -1;
+            for (let next = selected + step; next >= 0 && next < items.length; next += step) {
+                if (!items[next]?.disabled) {
+                    setSelected(next);
+                    break;
+                }
+            }
         } else if (event.key === 'Enter') {
             event.preventDefault();
             items[selected]?.onSelect();
@@ -269,7 +302,7 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                                                 key={item.id}
                                                 item={item}
                                                 selected={isSelected}
-                                                onHover={() => setSelected(index)}
+                                                onHover={() => !item.disabled && setSelected(index)}
                                             />
                                         );
                                     })}
