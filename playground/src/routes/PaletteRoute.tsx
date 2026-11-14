@@ -33,6 +33,7 @@ export function PaletteRoute() {
     const [pending, setPending] = useState<Entry | null>(null);
     const [lastSelected, setLastSelected] = useState('none');
     const [manyRows, setManyRows] = useState(false);
+    const [stepsDemo, setStepsDemo] = useState(false);
     const [step, setStep] = useState<{ title: string } | null>(null);
 
     const choose = useCallback((id: string) => {
@@ -89,9 +90,9 @@ export function PaletteRoute() {
 
         return (['Recent', 'Actions', 'Navigate'] as const).map((group) => ({
             title: group,
-            items: [...toItems(matching.filter((entry) => entry.group === group)), ...(group === 'Actions' ? [stepEntry] : [])],
+            items: [...toItems(matching.filter((entry) => entry.group === group)), ...(group === 'Actions' && stepsDemo ? [stepEntry] : [])],
         }));
-    }, [query, expanded, manyRows, choose, step]);
+    }, [query, expanded, manyRows, choose, step, stepsDemo]);
 
     const items = sections.flatMap((section) => section.items);
     const [selectedIndex, setSelectedIndex] = useState(0);
@@ -115,6 +116,9 @@ export function PaletteRoute() {
                 </Button>
                 <Button data-testid="toggle-many" onClick={() => setManyRows((current) => !current)}>
                     {manyRows ? 'Few rows' : 'Many rows'}
+                </Button>
+                <Button data-testid="toggle-steps" onClick={() => setStepsDemo((current) => !current)}>
+                    {stepsDemo ? 'No steps' : 'Steps'}
                 </Button>
             </div>
             <p className="text-[12px] text-muted">
