@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -95,5 +95,50 @@ describe('CommandPalette disabled rows', () => {
         renderPalette([row('a', { disabled: true }), row('b', { disabled: true })]);
 
         expect(selectedId()).toBeNull();
+    });
+});
+
+describe('CommandPalette more button', () => {
+    it('a row with onMore shows a more button', () => {
+        renderPalette([row('a', { onMore: noop }), row('b', { onMore: noop, moreLabel: 'Open actions' })]);
+
+        const more = screen.getByRole('button', { name: 'More actions' });
+        const rowElement = screen.getByTestId('palette-item-a');
+        expect(more).toBeDefined();
+        expect(rowElement.contains(more)).toBe(false);
+        expect(more.contains(rowElement)).toBe(false);
+        expect(more.parentElement).toBe(rowElement.parentElement);
+        expect(screen.getByRole('button', { name: 'Open actions' })).toBeDefined();
+    });
+
+    it('clicking the more button calls onMore and not onSelect', async () => {
+        const onMore = vi.fn();
+        const onSelect = vi.fn();
+        renderPalette([row('a', { onMore, onSelect })]);
+
+        await userEvent.click(screen.getByRole('button', { name: 'More actions' }));
+
+        expect(onMore).toHaveBeenCalledTimes(1);
+        expect(onSelect).not.toHaveBeenCalled();
+    });
+
+    it('Tab on the selected row calls its onMore and keeps focus in the input', async () => {
+        const onMore = vi.fn();
+        const { input } = renderPalette([row('a', { onMore })]);
+
+        input.focus();
+        await userEvent.keyboard('{Tab}');
+
+        expect(onMore).toHaveBeenCalledTimes(1);
+        expect(document.activeElement).toBe(input);
+    });
+
+    it('Tab on a row without onMore keeps default behaviour', () => {
+        const { input } = renderPalette([row('a')]);
+
+        input.focus();
+        const notPrevented = fireEvent.keyDown(input, { key: 'Tab' });
+
+        expect(notPrevented).toBe(true);
     });
 });

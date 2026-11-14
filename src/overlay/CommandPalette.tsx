@@ -29,6 +29,14 @@ export interface CommandPaletteItem {
     disabled?: boolean;
     /** Why a `disabled` row cannot run. Rendered after the label. */
     disabledReason?: React.ReactNode;
+    /**
+     * Adds a trailing "more" button that opens child actions. The selected
+     * row also answers Tab with it, so the keyboard reaches it without
+     * leaving the input.
+     */
+    onMore?: () => void;
+    /** Accessible name of the more button. */
+    moreLabel?: string;
     onSelect: () => void;
     testId?: string;
 }
@@ -100,19 +108,32 @@ interface PaletteRowProps {
     onHover: () => void;
 }
 
+function MoreIcon() {
+    return (
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true" className="shrink-0">
+            <circle cx="2.5" cy="6" r="1.1" />
+            <circle cx="6" cy="6" r="1.1" />
+            <circle cx="9.5" cy="6" r="1.1" />
+        </svg>
+    );
+}
+
 export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
+    const hasMore = item.onMore !== undefined;
+    const stateClassName = selected ? 'bg-accent-soft' : !item.disabled && 'hover:bg-accent-soft';
     const shared = {
         'aria-disabled': item.disabled ? true : undefined,
         'data-disabled': item.disabled ? 'true' : undefined,
         'data-testid': item.testId ?? `palette-item-${item.id}`,
-        'data-selected': selected ? 'true' : undefined,
+        'data-selected': selected && !hasMore ? 'true' : undefined,
         onMouseEnter: onHover,
         className: cn(
             'flex w-full items-baseline justify-between gap-3 rounded-control py-2 text-left text-[13px]',
             item.nested ? 'pl-7 pr-3' : 'px-3',
             item.destructive ? 'text-fail' : 'text-body',
             item.disabled && 'cursor-not-allowed text-faint',
-            selected ? 'bg-accent-soft' : !item.disabled && 'hover:bg-accent-soft',
+            !hasMore && stateClassName,
+            hasMore && 'min-w-0 flex-1',
         ),
     };
     const content = (
@@ -129,8 +150,7 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
         </>
     );
 
-    if (item.href) {
-        return (
+    const rowElement = item.href ? (
             <a
                 {...shared}
                 href={item.disabled ? undefined : item.href}
@@ -146,13 +166,34 @@ export function PaletteRow({ item, selected, onHover }: PaletteRowProps) {
             >
                 {content}
             </a>
-        );
-    }
-
-    return (
+    ) : (
         <button {...shared} type="button" onClick={item.disabled ? undefined : item.onSelect}>
             {content}
         </button>
+    );
+
+    if (!item.onMore) {
+        return rowElement;
+    }
+
+    return (
+        <div
+            data-selected={selected ? 'true' : undefined}
+            className={cn('flex w-full items-center rounded-control pr-1.5', stateClassName)}
+        >
+            {rowElement}
+            <button
+                type="button"
+                tabIndex={-1}
+                onMouseEnter={onHover}
+                aria-label={item.moreLabel ?? 'More actions'}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={item.onMore}
+                className="flex size-6 shrink-0 items-center justify-center rounded-control text-faint hover:bg-hair hover:text-body"
+            >
+                <MoreIcon />
+            </button>
+        </div>
     );
 }
 
@@ -239,6 +280,9 @@ export const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(fu
                     break;
                 }
             }
+        } else if (event.key === 'Tab' && !event.shiftKey && items[selected]?.onMore) {
+            event.preventDefault();
+            items[selected]?.onMore?.();
         } else if (event.key === 'Enter') {
             event.preventDefault();
             items[selected]?.onSelect();
